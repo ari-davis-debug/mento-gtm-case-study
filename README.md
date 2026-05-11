@@ -95,6 +95,26 @@ Three things make Mento a fit for this shape, not just any GTM-engineer playbook
 2. **A two-rep team can't survive a "build first, adopt later" rollout.** If reps don't open the OS in week one, no automation built in week four matters. Steps 1–4 are *more* important here than at a 50-person org.
 3. **Founder-instinct + rep-instinct divergence is the highest-value gap.** The OS is the only place that gap can be made visible (Step 4 captures it explicitly).
 
+## What the GTM OS is *for*
+
+**The OS is not a deliverable. It's a workshop.** Once it's stood up, it's where every new GTM thing Mento wants to build gets built — new signal types, new playbooks, new scoring rules, new rep workflows. The signal workflow in Part 3 is the *first* thing built inside it, not the only thing. Everything after is the same pattern: someone has an idea or hits a bottleneck → it gets captured in the repo → Claude Code (with the lake underneath) takes it from idea to shipped.
+
+**Where you go when you want to do X:**
+
+| When Mento wants to… | Where to go in the OS | What gets created |
+|---|---|---|
+| **Add a new signal source** (new API, new trigger type) | [`gtm-os/step-2`](./gtm-os/step-2-data-playbooks-ingested-daily.md) + Airbyte connector → new row in `signal_events` table | New Airbyte source, new SQL signal rule, weights folded into Part 2 §Q3 archetype scoring |
+| **Rewrite a playbook** (discovery, demo, objection handling) | Claude Code prompt against `data/avoma/transcripts/` → diff in `foundation/playbooks/` | New playbook PR, versioned, reviewable |
+| **Capture a new bottleneck** (rep flagged, founder noticed, lake surfaced) | [`bottlenecks/`](./case-study/part1-diagnose-and-prioritize.md) — one markdown file per bottleneck, schema in walkthrough 3 | New bottleneck node, ranked against existing by impact × buildability × trust |
+| **Ship a new workflow** (e.g. churn-risk monitor, expansion-signal alerts) | [`gtm-os/step-5`](./gtm-os/step-5-agentic-dev-ship-solutions.md) — spec → research → test → ship | New Trigger.dev jobs, eval-gated, deployed |
+| **Re-tune ICP weights** (the lake disagrees with your math) | [Part 2 §Q3](./case-study/part2-data-foundation.md) → monthly logistic regression on `outcomes` table | New `archetype_score_*` weights, PR for human review |
+| **Add a new archetype** (a new win pattern emerges) | [Part 2 §Q3](./case-study/part2-data-foundation.md) → new SQL CASE-statement column on `accounts` | New archetype score column, MAX() routing automatically picks it up |
+| **Onboard a new stakeholder** (RevOps hire, new founder advisor) | [`walkthroughs/`](./walkthroughs/) — 5 written guides | Stakeholder running their own prompts in ~1 hour |
+| **Re-rank what to build next** (quarterly, or when lake surfaces a new top problem) | [`gtm-os/step-4`](./gtm-os/step-4-capture-prioritize-bottlenecks.md) — re-run the ranking against current `bottlenecks/` | Updated `bottlenecks/_synthesis.md` |
+| **Audit a number you don't trust** (priority score, draft quality, lifecycle stage) | Click "Trigger detail" in the Slack card → SQL breakdown of every weight | Every claim is one click from source — no black boxes |
+
+**The pattern is always the same.** A new thing wants to exist → it becomes a file (a bottleneck, a spec, a playbook, a signal rule) → Claude Code uses the lake + the existing playbooks to ship it → the eval gate filters it → reps see the output in Slack → outcomes flow back into the monthly retrain. **Every shipped thing makes the next thing easier to ship.** That's what makes it an OS and not a project.
+
 ## On the walkthroughs folder
 
 [`walkthroughs/`](./walkthroughs/) contains five written guides — *"here's how you'd actually stand this up."* The stack used (Airbyte → Supabase → Trigger.dev → Claude Code → SmartLead) is illustrative; swap your equivalents where they fit.
