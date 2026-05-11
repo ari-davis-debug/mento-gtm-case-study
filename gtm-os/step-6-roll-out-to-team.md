@@ -20,16 +20,16 @@ A two-rep team that has closed deals on instinct for two years will reject any s
 | **HITL placement at draft, not trigger** | Rep approves the *email*, not the *signal*. Approval fatigue is the killer; reading a good draft is trust-building, not chore-checking | Trust comes from seeing a *good draft*, not a *good trigger*. |
 | **Rep-co-authored bottlenecks** | The thing being shipped (Step 5) is one of the bottlenecks the team ranked in Step 4 — not an automation a GTM engineer guessed they needed | Reps adopt what they helped pick. |
 
-### The video walkthrough series
-The adoption mechanic in practice. Short series, recorded once, lives in the repo:
+### The written walkthrough series
+The adoption mechanic in practice. Five written walkthroughs live in [`walkthroughs/`](../walkthroughs/):
 
-1. **Setting up the OS** — Airbyte OAuth into HubSpot/Avoma/Slack, repo tree tour
+1. **Installation and setup** — Airbyte OAuth into HubSpot/Avoma/Slack, repo tree tour
 2. **First prompts in Claude Code** — what a stakeholder does in their first 45 minutes
-3. **Walking the bottleneck capture** — how Step 4 surfaces the top 1–2 problems
-4. **The Part 3 build, end to end** — spec → tests → ship, with HITL placement
-5. **What a rep sees in Slack** — the signal-card UX
+3. **Bottleneck capture** — how Step 4 surfaces the top 1–2 problems
+4. **Shipping the signal workflow** — spec → tests → ship, with HITL placement
+5. **Rep experience in Slack** — the signal-card UX
 
-Mento can hand the videos to the next hire and onboard them in a morning.
+Mento can hand the walkthroughs to the next hire and onboard them in a morning.
 
 ### Slack-card design (the actual UX rep sees)
 Detailed in [Part 3 §(6)](../case-study/part3-buying-signal-workflow.md). One-page brief, three buttons (Approve & Send / Edit / Skip), every claim deep-linked to source.

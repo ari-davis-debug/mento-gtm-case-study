@@ -1,7 +1,7 @@
 # Part 1 — Diagnose & Prioritize
 
 > Mento GTM Engineer Take-Home · 1-page brief
-> *Frame: this is Steps 1–4 of a 7-step GTM Operating System pattern. The repo described below is real — `mento-gtm/` is being built alongside this submission. The submission ships with a short video walkthrough series so Alex and the reps can see exactly how to set it up and use it on day 1.*
+> *Frame: this is Steps 1–4 of a 7-step GTM Operating System pattern. The repo described below is real — `mento-gtm/` is being built alongside this submission. The submission ships with five written walkthroughs ([`walkthroughs/`](../walkthroughs/)) so Alex and the reps can see exactly how to set it up and use it on day 1.*
 
 ## The Slack message I got
 
@@ -46,13 +46,13 @@ mento-gtm/
 
 **Why "everything, daily" matters:** the OS only earns its keep if **a stakeholder like Alex** can ask *"why did we close [last big logo]?"* and Claude Code can answer it from real data — Avoma quotes, the Slack thread where the intro happened, the funding event 60 days prior, the CHRO hire 30 days before that. Same query for losses. **This is how we surface the top 1–2 GTM bottlenecks** — by letting the data speak when stakeholders query it themselves in Step 2, *not* by running a round of stakeholder interviews. The reps get the *output* of all this — a list of accounts to work, with context. The stakeholders get the *system* — a place to ask "why" and get an answer that isn't vibes.
 
-**Delivery:** a short video walks Alex through Airbyte OAuth setup, the repo tree, and what each folder is for. He runs it once with me; runs it himself the second time.
+**Delivery:** a written walkthrough ([`walkthroughs/1-installation-and-setup.md`](../walkthroughs/1-installation-and-setup.md)) covers Airbyte OAuth setup, the repo tree, and what each folder is for. Alex runs it once with me; runs it himself the second time.
 
 Output: `mento-gtm/` repo live, Airbyte daily sync running, every artifact above flowing in with front-matter.
 
 ### Q: Second — how do you get stakeholders into Claude Code and pointed at the repo? (Weeks 2–3 → Step 3)
 
-**A: Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, recorded as a reusable walkthrough video so the next stakeholder (or new hire) onboards themselves:
+**A: Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, paired with the written walkthroughs in [`walkthroughs/`](../walkthroughs/) so the next stakeholder (or new hire) onboards themselves:
 
 - Install Claude Code, install GitHub Desktop, clone `mento-gtm/`
 - Open 2+ terminals — one for chat, one for repo work
@@ -66,7 +66,7 @@ Keep it simple at this stage — **no custom commands or skills yet**, just raw 
 
 **Custom skills and commands come next, *because* of these sessions.** When Alex says *"I want this 200-list signal-check to run every Monday morning"* — that becomes a one-line spec (*"build me X, here's why"*) which graduates into a real Claude Code skill or slash-command living in `mento-gtm/.claude/`. Those skills are the durable output of Step 2: starter prompts in week 1 → repeatable skills/commands by week 3 → spec inputs for Part 3 builds by week 4.
 
-Output: Alex (and any other opted-in stakeholder) running prompts independently. Signal-trust list captured live in those sessions. Onboarding video shipped for repeatability. The first ~3 starter prompts that get reused enough get promoted into custom skills.
+Output: Alex (and any other opted-in stakeholder) running prompts independently. Signal-trust list captured live in those sessions. Written walkthroughs shipped for repeatability. The first ~3 starter prompts that get reused enough get promoted into custom skills.
 
 ### Q: Third — how do you capture and prioritize bottlenecks? (Weeks 3–4 → Step 4)
 
@@ -136,7 +136,7 @@ Two compounding failure modes, both about humans:
 2. **Signal distrust** — even if the OS is alive, a two-rep team that has closed deals on instinct for two years will reject any system producing leads they don't recognize as "ours."
 
 **Mitigation, embedded in the plan:**
-- The video walkthroughs lower the terminal learning curve — that's the actual unlock.
+- The written walkthroughs lower the terminal learning curve — that's the actual unlock.
 - Step 2 (1:1 onboarding) gets each stakeholder running prompts against *their* data in their first session.
 - Step 3 (bottleneck capture) makes reps co-authors of what gets built, not recipients.
 - First ship in Part 3 is a bottleneck *they* ranked highest.

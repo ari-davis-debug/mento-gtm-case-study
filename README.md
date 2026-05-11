@@ -1,7 +1,7 @@
 # Mento GTM Engineer Take-Home — Submission
 
 > Ari Davis · 2026-05-11
-> Format: GitHub repo + 1-page briefs per part + GTM OS step-by-step + short video walkthrough
+> Format: GitHub repo + 1-page briefs per part + GTM OS step-by-step + written walkthroughs for standing it up
 
 ## TL;DR — what I'm proposing, and why
 
@@ -79,10 +79,10 @@ This is the spine. Each step of the OS gets a file in `gtm-os/` and links into t
 |---|---|---|
 | **1. Repo per client** | Stand up `mento-gtm/` as the single source-of-truth repo | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) — repo tree, Airbyte OAuth, daily sync |
 | **2. Data + playbooks ingested daily** | Everything Mento has (HubSpot, Avoma, Slack, 200-list, enrichment) flows into Supabase daily, with the rules-about-the-data as playbooks in the repo | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) — *"why everything, daily"* + **all of [Part 2](./case-study/part2-data-foundation.md)** — dedupe / enrichment / ICP scoring / lifecycle = the playbooks |
-| **3. Stakeholders into Claude Code on the repo** | Alex + reps onboard via 1:1 sessions, recorded as walkthrough videos; first prompts run against their own data | [Part 1 §2](./case-study/part1-diagnose-and-prioritize.md) — 3 starter prompts, custom skills/commands graduate from these sessions |
+| **3. Stakeholders into Claude Code on the repo** | Alex + reps onboard via 1:1 sessions; first prompts run against their own data. Written walkthroughs in [`walkthroughs/`](./walkthroughs/) show how to stand it up. | [Part 1 §2](./case-study/part1-diagnose-and-prioritize.md) — 3 starter prompts, custom skills/commands graduate from these sessions |
 | **4. Capture + prioritize bottlenecks** | Bottlenecks captured from the lake (not from interviews), ranked by impact × buildability × stakeholder-trust | [Part 1 §3](./case-study/part1-diagnose-and-prioritize.md) — `bottlenecks/` directory + Phase 0 data archaeology gate |
 | **5. Agentic dev to ship solutions** | Spec → research → test → ship the top-ranked bottleneck | **All of [Part 2](./case-study/part2-data-foundation.md)** (the substrate the ship needs) + **all of [Part 3](./case-study/part3-buying-signal-workflow.md)** (the actual ship — the signal workflow) |
-| **6. Roll out to the team** | Adoption mechanic — videos, HITL placement, rep-co-authored bottlenecks, Slack-direct delivery | [Part 1 risk section](./case-study/part1-diagnose-and-prioritize.md) + [Part 3 §(6)](./case-study/part3-buying-signal-workflow.md) — Slack-card HITL design |
+| **6. Roll out to the team** | Adoption mechanic — written walkthroughs, HITL placement, rep-co-authored bottlenecks, Slack-direct delivery | [Part 1 risk section](./case-study/part1-diagnose-and-prioritize.md) + [Part 3 §(6)](./case-study/part3-buying-signal-workflow.md) — Slack-card HITL design |
 | **7. Measure → pipeline + revenue** | Closed-loop attribution. Pipeline + revenue is the only legitimate success metric | [Part 2 §Q3](./case-study/part2-data-foundation.md) — monthly weight re-fit + [Part 3 §(7)](./case-study/part3-buying-signal-workflow.md) — deal-on-reply + outcomes loop |
 
 **The story this tells:** *Mento asked three questions. The honest answer is they're not three things — they're parts of one OS. Here's the OS, and here's where each of those questions lives inside it.*
@@ -95,18 +95,17 @@ Three things make Mento a fit for this shape, not just any GTM-engineer playbook
 2. **A two-rep team can't survive a "build first, adopt later" rollout.** If reps don't open the OS in week one, no automation built in week four matters. Steps 1–4 are *more* important here than at a 50-person org.
 3. **Founder-instinct + rep-instinct divergence is the highest-value gap.** The OS is the only place that gap can be made visible (Step 4 captures it explicitly).
 
-## On the video walkthrough
+## On the walkthroughs folder
 
-The video walks the **7-step OS, with each step showing where the take-home answer lives inside it.** Not three separate part walkthroughs — one story, three answers fit inside it.
+[`walkthroughs/`](./walkthroughs/) contains five written guides — *"here's how you'd actually stand this up."* The stack used (Airbyte → Supabase → Trigger.dev → Claude Code → SmartLead) is illustrative; swap your equivalents where they fit.
 
-```
-0:00 – 1:30   GTM OS — the 7-step shape, why Mento needs it
-1:30 – 3:30   Steps 1–4 (Foundation) → Part 1 lives here
-3:30 – 5:30   Step 5 substrate → Part 2 lives here
-5:30 – 8:00   Step 5 build layer → Part 3 lives here
-8:00 – 9:00   Steps 6 + 7 → what comes after 60 days
-9:00 – 9:30   Wrap — the repo + Claude Code + Mento
-```
+| # | Walkthrough | What it unlocks |
+|---|---|---|
+| 1 | [Installation and setup](./walkthroughs/1-installation-and-setup.md) | Lake alive, daily sync running, repo cloned |
+| 2 | [First prompts in Claude Code](./walkthroughs/2-first-prompts-in-claude-code.md) | Three starter prompts against real data |
+| 3 | [Bottleneck capture](./walkthroughs/3-bottleneck-capture.md) | Top 1–2 bottlenecks ranked from the lake |
+| 4 | [Shipping the signal workflow](./walkthroughs/4-shipping-the-signal-workflow.md) | A top-ranked bottleneck shipped, eval-gated |
+| 5 | [Rep experience in Slack](./walkthroughs/5-rep-experience-in-slack.md) | What a rep actually does with a card |
 
 ## What I'm not claiming
 
@@ -118,6 +117,6 @@ The video walks the **7-step OS, with each step showing where the take-home answ
 1. **This README** — the frame
 2. **[`gtm-os/`](./gtm-os/)** — the 7-step shape, step by step (recommended)
 3. **[`case-study/`](./case-study/)** — direct answers to the take-home (if you'd rather skip the framing)
-4. **Video** — the same story, walked end-to-end
+4. **[`walkthroughs/`](./walkthroughs/)** — written guides for standing this up on your own machine
 
 — Ari

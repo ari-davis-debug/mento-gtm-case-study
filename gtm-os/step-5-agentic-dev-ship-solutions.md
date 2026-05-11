@@ -60,4 +60,4 @@ This is the biggest step of the OS, so both Parts 2 and 3 live inside it.
 
 ## What's next
 
-[Step 6 — Roll out to the team](./step-6-roll-out-to-team.md) — once the build is shipped, the rep adoption mechanic determines whether it lives or dies. Slack-direct delivery, HITL placement, rep-co-authored bottlenecks, video walkthroughs.
+[Step 6 — Roll out to the team](./step-6-roll-out-to-team.md) — once the build is shipped, the rep adoption mechanic determines whether it lives or dies. Slack-direct delivery, HITL placement, rep-co-authored bottlenecks, written walkthroughs.
