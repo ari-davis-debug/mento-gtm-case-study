@@ -5,11 +5,25 @@
 
 ## The Slack message I got
 
-The pain isn't the messy HubSpot. It's that **Mento has been winning deals through warm intros and exec dinners for two years, and nobody has written down why those deals close** — in a place the team can actually work in.
+> **From Alex (Mento, technical co-founder), Slack DM:**
+>
+> *"Hey — quick context for the take-home. We're a leadership-development startup, ~2 years in. Two reps right now (one founder-rep, one IC), most of our customers came through warm intros and exec dinners — Brex, Vercel, Anthropic, SoFi, a few more. Mid-7-figures ARR, growing, but we've never had a real GTM motion.*
+>
+> *The problem: HubSpot is a disaster. ~5K contacts, dupes everywhere, 40% missing firmographics, no consistent lifecycle stages, no ICP scoring. We have a 200-ish account list we've been meaning to activate but never have. We record everything in Avoma. We know our customers tend to hit us around funding events, fast headcount growth, or a new CHRO/VP People — but nobody's automated checking for any of that.*
+>
+> *We want a GTM engineer to come in and figure out: (1) what's the first 60 days look like, (2) how do we fix the data foundation so it stops decaying, (3) design + build a workflow that monitors buying signals on the 200-list, enriches + scores them, and routes to the right rep with a personalized draft (but doesn't auto-send). Three parts to the take-home. Send back what you'd actually do."*
+
+**The real pain in that message isn't the messy HubSpot.** It's that **Mento has been winning deals through warm intros and exec dinners for two years, and nobody has written down why those deals close** — in a place the team can actually work in.
 
 So my job in week one isn't to clean HubSpot or ship an automation. **It's to stand up the GTM Operating System** — repo, full daily data ingestion, stakeholders inside it — *then* let the bottleneck-capture happen on top of that foundation. Steps 5–7 (ship, roll out, attribute) come after.
 
-## First three things, in order
+---
+
+## Q: What are the first three things you do, in order?
+
+**A:** (1) Stand up the GTM OS — repo + full daily Airbyte ingestion. (2) Get stakeholders into Claude Code, pointed at the repo. (3) Capture and prioritize bottlenecks from what the data is telling us.
+
+Detail on each below.
 
 ### 1. Stand up the GTM OS — repo + full daily ingestion (Day 1–4) → Steps 1 + 2
 
@@ -84,7 +98,9 @@ Output: `bottlenecks/` ranked. The top item drives Part 3.
 
 **Why this order, why we stop at Step 4:** Steps 5–7 (ship, roll out, attribute) only work if 1–4 are real. Most GTM-engineering hires get pulled straight to "build the signal workflow" and skip the foundation — system pumps wrong leads at reps who don't trust it, dies in week 5. **Setting up the OS *is* the work of week one.** Part 2 starts Step 5 (data foundation as the buildable layer); Part 3 ships the top-ranked bottleneck inside it.
 
-## What I'd need to gather in week one I don't have yet
+## Q: What information would you need to gather in week one?
+
+**A:** Seven inputs, all already exist somewhere at Mento — I'm not asking anyone to *produce* anything new, just give me access. The table below shows what, where, and what unlocking each one buys us.
 
 | Need | Where it lives | Maps to step | What it unlocks |
 |---|---|---|---|
@@ -96,9 +112,9 @@ Output: `bottlenecks/` ranked. The top item drives Part 3.
 | Reps' signal-trust list | Live in Step 3 onboarding | Step 3 | Gate for what's allowed to ship in Part 3 |
 | Marketing/outbound's current motion | Alex | Step 4 capture | Determines whether we're displacing or augmenting |
 
-## Biggest risk to 60 days
+## Q: What's the biggest risk to "something working in 60 days"?
 
-**Not data quality. Adoption — getting stakeholders into the GTM OS and trusting it.**
+**A: Not data quality. Adoption — getting stakeholders into the GTM OS and trusting it.**
 
 Two compounding failure modes, both about humans:
 

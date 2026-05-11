@@ -40,7 +40,11 @@ flowchart TD
 
 ---
 
-## (1) Monitor — which signals, which sources
+## Q1: How would you monitor for signals — which ones, which sources?
+
+**A:** Four signals from the brief (Series B/C/D funding, headcount ≥ 20% in 180d, new CHRO/CPO/VP People, L&D job posting). Each gets a primary source + cross-check so no single tool can blind the system. Crunchbase pushes via webhook; the others are daily Trigger.dev polls. Plus 6 bespoke signals (manager-density, triple-event correlation, alumni placement, Glassdoor drop, named-customer lookalike, exec posts about manager dev) — these are the "who's in pain right now" segment, computed in SQL from data already in the lake. Detail below.
+
+### (1) Monitor — which signals, which sources
 
 The 4 signals from the brief, and the direct sources for each. **No signal rides on a single tool** — each gets a primary aggregator plus a cross-check, so a Sumble outage or a LinkedIn HTML change can't blind the system:
 
@@ -61,7 +65,11 @@ Each source is hit by a **Trigger.dev** task that validates the payload, runs th
 
 ---
 
-## (2) Enrich — what context, which tools
+## Q2: How would you enrich the triggered account — what context, which tools?
+
+**A:** When a row lands in `trigger_events`, a follow-on Trigger.dev job pulls fresh context from BlitzAPI (firmographics + ranked verified contacts CHRO→VP People→L&D→CFO with email + mobile phone), Crunchbase (funding details), The Org (org chart), and lake SQL (free signals: Glassdoor, lookalike, alumni). All cached as `account_context` JSON so each external API gets called at most once per trigger. Detail below.
+
+### (2) Enrich — what context, which tools
 
 When a row lands in `trigger_events`, a follow-on Trigger.dev job pulls fresh context:
 
@@ -77,7 +85,11 @@ Output: `account_context` JSON cached in Supabase, read by the scorer, the draft
 
 ---
 
-## (3) Score / prioritize — the human version first, SQL underneath
+## Q3: How would you score / prioritize the signal — not all triggers are equal?
+
+**A:** Three numbers: `icp_score` (0–110, from Part 2) + `trigger_score` (0–~200, computed here) → `priority_score = trigger_score + (icp_score × 0.5)`. The alpha is in **combinations** — a funding round on its own = warm; funding + headcount jump + new CHRO in same 90 days = +50 combinatorial bonus (the new-CHRO-mandate archetype catching fire). All SQL — same query a rep can read. Weights backtested against won/lost deals (AUC ≥ 0.75) before shipping; monthly logistic regression re-fits over time. Detail below.
+
+### (3) Score / prioritize — the human version first, SQL underneath
 
 ### How a rep should think about it
 
@@ -189,7 +201,11 @@ priority_score = trigger_score + (icp_score * 0.5);
 
 ---
 
-## (4) Route — deterministic rules
+## Q4: How would you route the account to the right rep?
+
+**A:** Four deterministic rules in order: prior touch → territory match → round-robin between the 2 reps → Alex-override for `priority_score ≥ 95` (founder-led at top fit).
+
+### (4) Route — deterministic rules
 
 1. **Prior touch** → owns it (HubSpot deal association or last-activity rep)
 2. **Territory match** → territory owner
@@ -198,7 +214,11 @@ priority_score = trigger_score + (icp_score * 0.5);
 
 ---
 
-## (5) Draft — the only place AI is load-bearing
+## Q5: How would you draft the personalized email — and where does AI sit?
+
+**A:** This is the only load-bearing AI in the system. Claude reads: the trigger payload, full account context, the best Avoma quote from a comparable won-customer's discovery call (matched on cohort + signal type), the buyer record (role, tenure, recent LinkedIn activity, BlitzAPI-verified email + phone), and the rep's voice samples from past closed-won emails. Output is a structured draft (subject, body, evidence used, comparable customer, voice match score). **LLM-as-judge eval gate scores every draft ≥ 0.85 before it pings the rep** — drafts below threshold retry with feedback. The rep never sees a bad one. Detail below.
+
+### (5) Draft — the only place AI is load-bearing
 
 This is the piece templates can't do. Inputs the agent reads:
 
@@ -230,7 +250,11 @@ Output schema:
 
 ---
 
-## (6) HITL — Slack-direct, not Gmail
+## Q6: Where does the human-in-the-loop sit, and why?
+
+**A:** Slack DM from `@mento-signals` — a rich Block Kit card with three buttons: ✅ Approve & Send / ✏️ Edit / 🚫 Skip. **HITL at the draft, not the trigger.** Reps will ignore trigger approvals by week three (approval fatigue); they trust the system when they see a *good draft*, not a *good trigger*. The eval gate already filtered drafts under 0.85, so the rep's job is taste, not quality control. Detail below.
+
+### (6) HITL — Slack-direct, not Gmail
 
 **Where:** the rep's Slack — DM from the `@mento-signals` bot (or in `#signals-<rep-slug>` if they prefer a channel). Reps already live in Slack. They check it 100× a day. Gmail draft folder gets ignored; a Slack ping with a rich card doesn't.
 
@@ -327,7 +351,11 @@ flowchart TD
 
 ---
 
-## (7) Approve → CRM sync → Sequencer
+## Q7: What happens on Approve — CRM sync, sequencing, and attribution?
+
+**A:** On approve: HubSpot upsert in one transaction (contact + company + activity note with the full trigger payload + email logged). **No deal record yet** — outbound send ≠ pipeline. SmartLead picks up the approved draft as step 1 of a pre-tuned `Signal-Triggered — <signal_type>` campaign and runs follow-ups at day 3 / 7 / 14 / 21. **A reply or booked meeting is what creates the HubSpot deal** (Discovery stage). All outcomes (sent / opened / replied / booked / opt-out) write to Supabase `outcomes` and feed the monthly weight re-fit. Detail below.
+
+### (7) Approve → CRM sync → Sequencer
 
 ### DAG #4 — the post-approval pipe
 
@@ -380,9 +408,9 @@ flowchart TD
 
 ---
 
-## The piece I'd actually build (per the brief: *hardest to get right*)
+## Q8: Which piece is hardest to get right — and what would you actually build?
 
-**The draft generator with the eval gate.** Crunchbase webhooks, SQL scoring, routing rules, Slack Block Kit cards, HubSpot upserts, SmartLead handoff — all plumbing. Wire-able in a day each.
+**A: The draft generator with the eval gate.** Crunchbase webhooks, SQL scoring, routing rules, Slack Block Kit cards, HubSpot upserts, SmartLead handoff — all plumbing. Wire-able in a day each.
 
 **Generating an email that sounds like Alex wrote it, references a real Avoma quote from a comparable Mento customer, ties to the specific signal that fired, reads the lifecycle correctly, and passes an automated voice-match check before the rep ever sees it — that's the work and the differentiation.**
 

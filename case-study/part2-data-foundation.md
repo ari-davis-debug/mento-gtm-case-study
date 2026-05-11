@@ -78,7 +78,9 @@ The shape is always: **reads from `[table]` → does `[the math / organization]`
 
 ---
 
-## Q1 — Deduplication + merge logic
+## Q1: What's the deduplication + merge logic?
+
+**A:** Tiered detection runs as SQL in Supabase (email → LinkedIn URL → domain+name → phone). Merges follow explicit field precedence with a no-downgrade rule on lifecycle. ~95% auto-merge, ~5% pings Alex with context. A sanity-check agent gates every write so one bad merge can't poison the lake. Detail below.
 
 **Plain English:** "Deduping" means collapsing duplicate contacts into one record. Same person ends up in HubSpot 5 times — once from an event, once from a website form, once because a rep added them manually, once from a Clay import, once with a typoed email. That's 5 rows, 1 person. Dedupe = merge them into 1 row that keeps the best data from each.
 
@@ -155,7 +157,9 @@ When two records merge, *which field from which record wins?* Without this rule 
 
 ---
 
-## Q2 — Enrichment sources + tools
+## Q2: What enrichment sources + tools, and what orchestrates them?
+
+**A:** Airbyte mirrors HubSpot + Avoma + Slack into Supabase (the lake). Deepline orchestrates an enrichment waterfall across BlitzAPI (contacts + firmographics + email/phone), Crunchbase (funding), The Org (org chart), Sumble (headcount + L&D). Trigger.dev runs the schedule; n8n is the alternative for visual editing. Verified fields push back to HubSpot through the same sanity-check agent. Detail below.
 
 ### The lake pattern — non-negotiable
 
@@ -201,7 +205,9 @@ HubSpot is the rep UI. Supabase is the system of record for derived data. **Math
 
 ---
 
-## Q3 — ICP fit in data terms
+## Q3: How would you define ICP fit in data terms?
+
+**A:** Outcome-backward, in two phases. **V0 (day one)** = one SQL formula with two tiers — firmographic filter + bespoke Mento boost (lookalike, Glassdoor, exec posts), threshold ≥ 70 routes to a rep. **V1 (month 6)** = per-archetype scoring (Hypergrowth-Promotion-Lag, New-CHRO-Mandate, Manager-Density-Break), each archetype gets its own SQL function, highest match wins. V1 only ships if it beats V0 on a held-out 20% of won deals. Detail below.
 
 ### What "outcome-backward" actually means, in plain English
 
@@ -320,7 +326,9 @@ The mechanic that matters: **filter says "who's in the room," archetype says "wh
 
 ---
 
-## Q4 — Lifecycle stages going forward
+## Q4: How should we define lifecycle stages going forward?
+
+**A:** Borrow the SiriusDecisions Demand Waterfall pattern: each stage has a single, machine-checkable entry condition. Lead → MQL auto (icp_score ≥ 70). MQL → SQL HITL (rep accepts). SQL → Opp auto (deal record created). Opp → Customer auto (closed-won). Any state → Disqualified with structured reason that feeds back into ICP weight retuning. **No-downgrade rule** — lifecycle is forward-only; exits go through Disqualified. Agents sit on top of the state machine for interpretation (MQL→SQL helper, churn-risk surfacer, re-evaluation surfacer, drift detector). Detail below.
 
 ### Plain English first
 
