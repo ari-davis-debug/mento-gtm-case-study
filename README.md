@@ -16,24 +16,29 @@ The shape is a 7-step pattern Tomas Cetner and I have been refining for building
 ```
 mento-case-study/
 │
-├── quickstart/      ← (1) "I want to get something working immediately"
+├── quickstart/           ← (1) "I want to get something working immediately"
 │   1-installation-and-setup.md     · OS steps 1+2 · get data into the repo
 │   2-first-prompts-in-claude-code.md · OS step 3   · play with your data
 │   3-bottleneck-capture.md           · OS step 4   · let the data tell you what's broken
 │
-├── case-study/      ← (2) "I want the direct take-home answers"
+├── case-study/           ← (2) "I want the direct take-home answers"
 │   part1-diagnose-and-prioritize.md
 │   part2-data-foundation.md
 │   part3-buying-signal-workflow.md
 │
-└── gtm-os/          ← (3) "I want to see how I think about the shape"
-    step-1-stand-up-the-repo.md
-    step-2-data-playbooks-ingested-daily.md
-    step-3-stakeholders-in-claude-code.md
-    step-4-capture-prioritize-bottlenecks.md
-    step-5-agentic-dev-ship-solutions.md
-    step-6-roll-out-to-team.md
-    step-7-measure-pipeline-revenue.md
+├── gtm-os/               ← (3) "I want to see how I think about the shape"
+│   step-1-stand-up-the-repo.md
+│   step-2-data-playbooks-ingested-daily.md
+│   step-3-stakeholders-in-claude-code.md
+│   step-4-capture-prioritize-bottlenecks.md
+│   step-5-agentic-dev-ship-solutions.md
+│   step-6-roll-out-to-team.md
+│   step-7-measure-pipeline-revenue.md
+│
+└── example-mento-gtm/    ← (4) "Show me what the actual repo would look like"
+    A live scaffold — foundation/, accounts/example-acme/, bottlenecks/,
+    knowledge-base/, ideas/, research/, sql/, services/, .claude/, ingest/
+    Click around the tree to see the shape directly.
 ```
 
 | If you want… | Go here | What you'll find |
@@ -42,6 +47,7 @@ mento-case-study/
 | **The direct take-home answers** | [`case-study/`](./case-study/) | One-page briefs answering each of Mento's three questions. Read in order, or jump to the one you care about. |
 | **The framing — how I think about the shape** | [`gtm-os/`](./gtm-os/) | The 7-step OS, one file per step. Each step links to the part of the case study that lives inside it. |
 | **The exact `mento-gtm/` file tree I'd stand up** | [`gtm-os/repo-file-structure.md`](./gtm-os/repo-file-structure.md) | Full recommended folder structure — modeled after how the CIA structures `clients/<client>/`, GTM-shaped. Every folder mapped to the OS step it lives inside. |
+| **A live, clickable example of the repo** | [`example-mento-gtm/`](./example-mento-gtm/) | Realistic scaffold with one fully-fleshed account (`example-acme`), bottlenecks, synthesis, SQL, services, and `.claude/` config. The shape, instantiated. |
 
 **No wrong order.** Each folder stands alone. The README is the bridge.
 
