@@ -11,7 +11,7 @@ So my submission doesn't propose an automation. **It proposes a GTM Operating Sy
 
 The shape is a 7-step pattern Tomas Cetner and I have been refining for building GTM operating systems for client teams in Claude Code. I've been building a personal version of this for a year (my own knowledge graph, the CIA — 350+ nodes, typed wiki-links, daily sync, agentic build discipline). Being explicit about the shape is how Mento evaluates whether I'm pattern-matching or pattern-applying.
 
-## Three ways to read this repo — pick one
+## Three ways to read this repo 
 
 ```
 mento-case-study/
