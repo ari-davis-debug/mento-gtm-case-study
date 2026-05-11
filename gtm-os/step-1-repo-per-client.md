@@ -32,7 +32,7 @@ mento-gtm/
 └── sql/                        # every SQL playbook lives here, versioned
 ```
 
-**Delivery:** a written walkthrough ([`walkthroughs/1-installation-and-setup.md`](../walkthroughs/1-installation-and-setup.md)) covers repo navigation. Alex runs it once with me; runs it himself the second time.
+**Delivery:** a written walkthrough ([`quickstart/1-installation-and-setup.md`](../quickstart/1-installation-and-setup.md)) covers repo navigation. Alex runs it once with me; runs it himself the second time.
 
 **Output:** `mento-gtm/` repo live, with empty-but-shaped folders ready for Step 2 to fill.
 

@@ -1,7 +1,7 @@
 # Part 1 — Diagnose & Prioritize
 
 > Mento GTM Engineer Take-Home · 1-page brief
-> *Frame: this is Steps 1–4 of a 7-step GTM Operating System pattern. The repo described below is real — `mento-gtm/` is being built alongside this submission. The submission ships with five written walkthroughs ([`walkthroughs/`](../walkthroughs/)) so Alex and the reps can see exactly how to set it up and use it on day 1.*
+> *Frame: this is Steps 1–4 of a 7-step GTM Operating System pattern. The repo described below is real — `mento-gtm/` is being built alongside this submission. The submission ships with five written walkthroughs ([`quickstart/`](../quickstart/)) so Alex and the reps can see exactly how to set it up and use it on day 1.*
 
 ## The Slack message I got
 
@@ -46,13 +46,13 @@ mento-gtm/
 
 **Why "everything, daily" matters:** the OS only earns its keep if **a stakeholder like Alex** can ask *"why did we close [last big logo]?"* and Claude Code can answer it from real data — Avoma quotes, the Slack thread where the intro happened, the funding event 60 days prior, the CHRO hire 30 days before that. Same query for losses. **This is how we surface the top 1–2 GTM bottlenecks** — by letting the data speak when stakeholders query it themselves in Step 2, *not* by running a round of stakeholder interviews. The reps get the *output* of all this — a list of accounts to work, with context. The stakeholders get the *system* — a place to ask "why" and get an answer that isn't vibes.
 
-**Delivery:** a written walkthrough ([`walkthroughs/1-installation-and-setup.md`](../walkthroughs/1-installation-and-setup.md)) covers Airbyte OAuth setup, the repo tree, and what each folder is for. Alex runs it once with me; runs it himself the second time.
+**Delivery:** a written walkthrough ([`quickstart/1-installation-and-setup.md`](../quickstart/1-installation-and-setup.md)) covers Airbyte OAuth setup, the repo tree, and what each folder is for. Alex runs it once with me; runs it himself the second time.
 
 Output: `mento-gtm/` repo live, Airbyte daily sync running, every artifact above flowing in with front-matter.
 
 ### Q: Second — how do you get stakeholders into Claude Code and pointed at the repo? (Weeks 2–3 → Step 3)
 
-**A: Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, paired with the written walkthroughs in [`walkthroughs/`](../walkthroughs/) so the next stakeholder (or new hire) onboards themselves:
+**A: Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, paired with the written walkthroughs in [`quickstart/`](../quickstart/) so the next stakeholder (or new hire) onboards themselves:
 
 - Install Claude Code, install GitHub Desktop, clone `mento-gtm/`
 - Open 2+ terminals — one for chat, one for repo work

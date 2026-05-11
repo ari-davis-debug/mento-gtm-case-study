@@ -21,7 +21,7 @@ A two-rep team that has closed deals on instinct for two years will reject any s
 | **Rep-co-authored bottlenecks** | The thing being shipped (Step 5) is one of the bottlenecks the team ranked in Step 4 — not an automation a GTM engineer guessed they needed | Reps adopt what they helped pick. |
 
 ### The written walkthrough series
-The adoption mechanic in practice. Five written walkthroughs live in [`walkthroughs/`](../walkthroughs/):
+The adoption mechanic in practice. Five written walkthroughs live in [`quickstart/`](../quickstart/):
 
 1. **Installation and setup** — Airbyte OAuth into HubSpot/Avoma/Slack, repo tree tour
 2. **First prompts in Claude Code** — what a stakeholder does in their first 45 minutes
