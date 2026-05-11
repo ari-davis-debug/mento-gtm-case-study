@@ -1,10 +1,10 @@
-# Step 1 — Repo per Client
+# Step 1 — Stand Up the GTM Repo
 
 > Foundation · Day 1
 
 ## What this step is
 
-Stand up `mento-gtm/` as the **single source-of-truth repo** for everything GTM. Versioned, queryable, multi-stakeholder. The place where Mento's accumulated win-evidence finally lives in a way that compounds.
+Stand up `mento-gtm/` as the **single source-of-truth repo** for everything GTM at Mento. Versioned, queryable, multi-stakeholder. The place where Mento's accumulated win-evidence finally lives in a way that compounds.
 
 ## Why it's the first step
 
@@ -18,19 +18,20 @@ mento-gtm/
 │   ├── _synthesis.md           # rolling: "what we currently believe wins deals"
 │   ├── icp.md                  # written-down ICP (starts empty, fills from Step 3)
 │   └── playbooks/              # rewritten live in Claude Code
-├── data/
-│   ├── hubspot/                # daily snapshots
-│   ├── avoma/                  # transcripts + summaries
-│   ├── slack/                  # deal-channel threads
-│   ├── apollo/                 # enrichment pulls
-│   └── signals/                # funding, job postings, headcount deltas
-├── accounts/<account-slug>/    # one folder per top account, auto-assembled
+├── accounts/<account-slug>/    # one folder per top account — the GTM unit of work
 │   ├── deal.md                 # cross-cuts of HubSpot + Avoma + Slack
-│   └── timeline.md             # 90-day signal trail
+│   ├── timeline.md             # 90-day signal trail
+│   ├── transcripts/            # Avoma cuts that matter for this account
+│   └── signals/                # funding, hires, headcount deltas tied to this account
 ├── bottlenecks/                # captured in Step 4
 ├── ideas/                      # rep-flagged what-ifs
-└── sql/                        # every SQL playbook lives here, versioned
+├── sql/                        # every SQL playbook lives here, versioned
+├── services/                   # shipped automations
+├── .claude/                    # skills, commands, agents
+└── ingest/raw/                 # manual drop-zone (PDFs, decks, one-off CSVs)
 ```
+
+**No top-level `data/` folder.** Raw HubSpot/Avoma/Slack exports don't live in git — they're PII-heavy and churn fast. If OS Step 2b is stood up, the live lake sits in Supabase/BigQuery and Claude reads it via SQL. Otherwise one-off exports drop into `ingest/raw/` and get processed into `accounts/<slug>/` where they're actually used.
 
 **Delivery:** a written walkthrough ([`quickstart/1-installation-and-setup.md`](../quickstart/1-installation-and-setup.md)) covers repo navigation. Alex runs it once with me; runs it himself the second time.
 

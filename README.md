@@ -52,7 +52,7 @@ mento-case-study/
 │  GTM OPERATING SYSTEM — 7-step shape                                 │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   1. Repo per client            ─┐                                  │
+│   1. Stand up the GTM repo     ─┐                                  │
 │   2. Data + ops models +         │  Foundation                      │
 │      playbooks into the repo     │   (this is what quickstart/      │
 │      (2b optional: data lake     │    walks live on real data)      │
@@ -81,7 +81,7 @@ Each step of the OS gets a file in `gtm-os/` and links into the **specific secti
 
 | OS Step | What it is | Where the take-home lives | Quickstart |
 |---|---|---|---|
-| **1. Repo per client** | Stand up `mento-gtm/` as the single source-of-truth repo | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) | [WT 1](./quickstart/1-installation-and-setup.md) |
+| **1. Stand up the GTM repo** | Spin up `mento-gtm/` as the single source-of-truth repo for the org | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) | [WT 1](./quickstart/1-installation-and-setup.md) |
 | **2. Data + ops models + playbooks into the repo** | Board decks, sales playbooks, 90-day deal/account/contact snapshot, meeting transcripts → into `data/` so Claude can find them. **2b (optional):** daily data lake via Airbyte (Supabase / BigQuery / your pick) when manual exports get old | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) + **all of [Part 2](./case-study/part2-data-foundation.md)** | [WT 1](./quickstart/1-installation-and-setup.md) |
 | **3. Stakeholders into Claude Code on the repo** | Alex + reps onboard via 1:1 sessions; first prompts run against their own data | [Part 1 §2](./case-study/part1-diagnose-and-prioritize.md) | [WT 2](./quickstart/2-first-prompts-in-claude-code.md) |
 | **4. Capture + prioritize bottlenecks** | Bottlenecks captured from the lake (not interviews), ranked by impact × buildability × stakeholder-trust | [Part 1 §3](./case-study/part1-diagnose-and-prioritize.md) | [WT 3](./quickstart/3-bottleneck-capture.md) |
