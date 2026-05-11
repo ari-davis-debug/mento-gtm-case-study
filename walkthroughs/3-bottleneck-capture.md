@@ -1,108 +1,114 @@
-# 3 — Bottleneck Capture
+# 3 — Let the Data Tell You What's Broken
 
-> Audience: Alex · Outcome: top 1–2 bottlenecks ranked from the lake, not from interviews
+> Audience: Alex · Outcome: a ranked shortlist of bottlenecks pulled *from your own data*, not from a whiteboard session
 
 ## What this walkthrough covers
 
-How to let the data tell you what to build first. Most GTM-engineer hires get pulled straight to "build the signal workflow." If you build the wrong thing first, reps reject it in week three and the whole OS dies. This is how to make sure you build the right thing.
+You've played with the lake (walkthrough 2). Now you look at it with one question: **where are we leaking?** The point isn't to build anything yet — it's to let the data nominate the problems so you don't waste cycles building the wrong thing first.
+
+Most GTM hires get pulled to "build the signal workflow" in week one. If the signal workflow isn't the actual #1 bottleneck, reps reject it in week three. This walkthrough is how you avoid that mistake — by reading what's already in your HubSpot, Avoma, and Slack instead of guessing.
 
 ## Setup
 
-- Repo as it sits at the end of walkthrough 2 — lake alive, three starter prompts run
-- `bottlenecks/` folder exists but is empty
-- A `bottlenecks/example-template.md` with the schema in front-matter
+- Walkthrough 2 done — you've run a few prompts and have a feel for how the data answers questions
+- `bottlenecks/` folder exists in `mento-gtm/` (empty for now)
+- A blank `bottlenecks/example-template.md` showing the schema below
 
-## Phase 0 — Data archaeology (distrust the CRM labels)
+## Phase 0 — Distrust your CRM labels
 
-Before ranking anything, run this in Claude Code:
+The most useful prompt you'll run in this whole sequence:
 
-> *"Take Mento's last 8 closed-won deals. For each one, tell me what was publicly true about that account 6 to 18 months before close — funding, headcount delta, exec turnover, Glassdoor inflection, careers-page churn. Then tell me what HubSpot says the deal source was. Show me where they disagree."*
+> *"Take my last 8 closed-won deals. For each one, tell me what was happening at that account in the 90–180 days before close — from anywhere in the data we have (HubSpot activities, Avoma calls, Slack threads, any signal table). Then tell me what HubSpot says the deal source was. Show me where they disagree."*
 
 Typical output:
 
 ```
 Glimmer Health
   HubSpot says: inbound demo request
-  Lake says:     CHRO Marisol Hwang hired 45 days pre-discovery
-                 Series C ($80M) 62 days pre-discovery
-                 23% headcount growth in 180d pre-close
+  Lake says:     CHRO hired ~45 days pre-discovery
+                 (contact-title change captured in hubspot_contacts)
+                 Avoma transcript opens with "we just brought
+                 Marisol on, comp framework is broken"
 
-  The actual trigger was the CHRO hire. The demo request was
-  the surface event.
+  The actual trigger was the CHRO hire. The demo was the
+  surface event.
 
 Outpost AI
   HubSpot says: warm intro from Alex
-  Lake says:     L&D req opened 30 days pre-intro
-                 Glassdoor career-growth score dropped 3.4 → 2.6
-                 over the 9 months pre-intro
+  Lake says:     Avoma reveals a months-long internal pain
+                 (L&D + retention) that pre-dates the intro
 
   Warm intros work because the buyer was already in pain.
-  HubSpot doesn't capture that. The lake does.
+  HubSpot's "deal source" field doesn't capture that. The
+  conversation data does.
 ```
 
-Most of Mento's wins look "inbound" in HubSpot. The lake shows they weren't — they were ICP accounts that hit a trigger, and the warm intro was the trust-bridge to close. **That's the actual win pattern.** Without Phase 0, you'd build scoring against the wrong inputs.
+Most Mento wins probably look "inbound" or "warm intro" in HubSpot. The conversation data usually shows the buyer was *already in pain* — and the intro was just the trust-bridge to close. **That's the actual win pattern, and it lives in the lake, not in the CRM.**
 
-## The `bottlenecks/` folder — one node per problem
+If you'd skipped Phase 0 and gone straight to "score accounts against the deal-source field," you'd score against the wrong inputs.
 
-Each bottleneck is a file with this schema:
+## The `bottlenecks/` folder — one file per problem
+
+Each bottleneck is a versioned markdown file. Schema:
 
 ```yaml
 ---
-systems_touched: [hubspot, apollo, manual]
-problem: 200-account list hasn't been re-scored against signals in 8 months
-how_measured: 0 of 200 accounts have a "last_signal_check" field
-root_cause_hypothesis: no automated signal monitor exists
+systems_touched: [hubspot, avoma]
+problem: 200-account list hasn't been re-scored against new signals in 8 months
+how_measured: no "last_signal_check" field exists on any of the 200 accounts
+root_cause_hypothesis: no monitor watches for trigger events
 desired_outcome: every account has signal state refreshed daily
-impact: 9      # missed deals — high
-buildability: 7 # tools exist, no novel science
-trust: 8       # reps will believe alerts from public-data triggers
+impact: 9         # missed deals — high
+buildability: 7   # known tools, no novel science
+trust: 8          # reps will believe alerts from public-data triggers
 priority_score: 24
 ---
 ```
 
-Three bottlenecks Mento likely has, written as nodes:
+Three Mento bottlenecks that might surface (illustrative — the *real* top-1 comes from the lake when this gets run for real):
 
 1. `bottlenecks/no-signal-coverage-on-200-list.md` — priority 24
 2. `bottlenecks/warm-intros-die-in-slack-threads.md` — priority 19
 3. `bottlenecks/playbook-drift-between-reps.md` — priority 16
 
-Three things to notice:
+What matters about the shape:
 
-1. Each bottleneck is a **file**, not a row in a spreadsheet — versioned, reviewable, linkable.
-2. Priority is **impact × buildability × trust**. Trust is what keeps you from shipping technically-perfect things reps reject.
-3. These came from the lake, not from interviews. That's the difference.
+- Each bottleneck is a **file** — versioned, reviewable, linkable from PRs.
+- Priority = **impact × buildability × trust**. Trust is the score most teams skip and the one that determines whether reps will adopt what you ship.
+- They came from looking at the data, not from a 30-min interview.
 
-## How the ranking math works
+## How ranking works
 
-Open `bottlenecks/_synthesis.md` — Claude writes it:
+Claude writes `bottlenecks/_synthesis.md` after you've captured 3–6 bottleneck files:
 
-> Top 1 — no signal coverage on the 200-list. Driving factors: 4 of last 5 wins had a public trigger fire pre-close, none of those triggers were detected by Mento at the time. Replicating that detection would have surfaced the deal an average of 41 days earlier.
+> *Top 1 — no signal coverage on the 200-list.* Evidence: 4 of last 5 wins had a public trigger fire pre-close; none of those were caught at the time. Replicating detection would've surfaced each deal ~41 days earlier on average.
 
-> Top 2 — warm-intros dying in Slack threads. Driving factor: 12 of 47 outbound Slack threads in 2026 have no follow-up after 7 days. Costs ~3 deals/quarter at current win rate.
+> *Top 2 — warm-intros dying in Slack threads.* Evidence: 12 of 47 outbound Slack threads in 2026 had no follow-up after 7 days. Costs an estimated ~3 deals/quarter.
 
-The trust axis is the gate. Anything you ship has to clear all three — high impact, buildable in 2 weeks, reps will trust it. The 200-list bottleneck clears all three. Warm-intros is buildable but trust is medium — would need rep co-design. Playbook drift is high-trust but lower impact. Ship #1 first.
+The **trust axis is the gate.** Anything shipped has to clear all three — high impact, buildable in ~2 weeks, reps will believe the output. The 200-list bottleneck clears all three. Warm-intros is buildable but trust is medium — would need rep co-design. Playbook drift is high-trust but lower impact. So #1 ships first.
 
-## Why this beats interviewing reps
+## Why this beats just asking reps
 
-You could have just asked the two reps what hurts. They'd tell you — they always do. Two reasons we don't:
+You *could* ask the two reps what hurts. They'd tell you. Two reasons we look at the lake first:
 
-1. **Recency bias** — reps name the thing that bothered them yesterday. The lake shows what bothers them over 18 months.
-2. **Want ≠ worth** — reps tell you what they want fixed, not what's *worth* fixing. The lake tells you which problems map to deals.
+1. **Recency bias.** Reps name the thing that bothered them yesterday. The lake shows what bothered them over 18 months.
+2. **Want ≠ worth.** Reps tell you what they want fixed; the lake tells you what's *worth* fixing — i.e., what maps to actual deals.
 
-But — and this matters — once the lake says "X is the top problem," go to the reps and say *we found this, does it match your experience?* That's where the trust score gets validated. If a rep says "I don't see it," the priority drops. **The data nominates; the rep confirms.**
-
-Now you have the bottleneck. Walkthrough 4 is how you ship it.
+But — and this matters — once the lake names a top problem, you take it to the reps: *we found this, does it match your experience?* That's where the trust score gets validated. If a rep says "I don't see it," the priority drops. **The data nominates; reps confirm.**
 
 ## What you've unlocked
 
-- **Phase 0 first** — distrust the CRM, cross-reference public data, find the real trigger.
-- **Each bottleneck is a file** with a fixed schema. Reviewable, rankable, comparable.
-- **Priority = impact × buildability × trust.** Trust is the score most teams skip.
-- **Data nominates, reps confirm.** Not interviews to find bottlenecks; lake to find them, rep to validate.
+- **Phase 0 done** — you know which wins were really pulled by what triggers, not what HubSpot labeled them.
+- **A ranked shortlist of bottlenecks** in `bottlenecks/`, each as a reviewable file.
+- **Impact × buildability × trust** as the ranking math — and an answer to "what should we build first?"
+- **A list of accounts the lake flagged that you wouldn't have** (from walkthrough 2 prompt 3) — usually one of these is the seed for the top bottleneck.
+
+Walkthrough 4 picks up here — *if you wanted to operationalize the top bottleneck, here's what the workflow shape would look like.*
 
 ## Common questions
 
-- **What if the top bottleneck isn't the signal workflow?** Then we don't build the signal workflow first. The take-home picks the signal workflow because the brief asked for it — but the OS would have surfaced whichever was actually #1. The methodology doesn't change.
-- **Why score impact × buildability × trust, not impact alone?** A 10/10 impact problem that takes 6 months to ship costs more in adoption-kill than a 7/10 problem shipped in 2 weeks. The score forces honesty about the tradeoff.
-- **How often do we re-rank?** Quarterly. Or whenever a new lake signal materially changes the impact estimate on an existing bottleneck.
-- **Can reps add bottlenecks?** Yes. The `ideas/` folder is the catch-all; promoted ideas become bottlenecks once Claude can fill in the schema (problem, how-measured, hypothesis, outcome).
+- **What if the top bottleneck isn't the signal workflow?** Then you don't build the signal workflow first. The take-home picks signals because the brief asked — but the OS would surface whatever was actually #1.
+- **Why score impact × buildability × trust, not impact alone?** A 10/10 impact problem that takes 6 months costs more in adoption-kill than a 7/10 shipped in 2 weeks. The score forces honesty about the tradeoff.
+- **How often do we re-rank?** Quarterly, or whenever a new lake signal materially changes an estimate.
+- **Can reps add bottlenecks?** Yes — `ideas/` is the catch-all. A promoted idea becomes a bottleneck once Claude can fill in the schema (problem, how-measured, hypothesis, outcome) from the lake.
+- **Do I need to fix every bottleneck?** No. The 80/20 reality is one or two of them drive most of the leak. Ship those, see what reveals next, re-rank.

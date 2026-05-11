@@ -1,12 +1,14 @@
-# 5 — Rep Experience in Slack
+# 5 — What the End-State Looks Like for Reps
 
-> Audience: Reps (Mento's 2) · Outcome: see what a rep actually does with this thing on a Monday morning
+> Audience: Reps (Mento's 2) · Outcome: see what a rep's Monday morning looks like *if* the workflow from walkthrough 4 ever gets operationalized
 
 ## What this walkthrough covers
 
-A rep opens Slack on Monday morning. There's a card waiting from `@mento-signals`. What's on it, what each button does, what happens after they click. **Nothing else** — no architecture, no SQL, no Trigger.dev. The rep's window is Slack.
+Walkthroughs 1–3 are about looking at your data. Walkthrough 4 is the shape of a workflow built on it. **This walkthrough is the end-state — what reps experience if and when that workflow is actually deployed.** It's here so you can decide *"would I want this?"* before anything gets built.
 
-This is the only walkthrough aimed at reps directly. You don't need to know how the OS works. You don't need to open Claude Code. You don't need to touch SQL. Your window into this entire system is Slack.
+Reps don't open Claude Code. They don't touch SQL. They don't look at Trigger.dev dashboards. Their entire window into the OS is one Slack card per top-priority account, per day. If that card isn't worth 20 seconds of their time, the system has failed — regardless of how clever the backend is.
+
+This walkthrough is what 20 seconds of value looks like.
 
 ## The card that lands
 
@@ -21,7 +23,7 @@ Triple-event fired in 90d:
  • New CHRO Mar 2 (Marisol Hwang, ex-Brex)
 Lookalike 0.81 → Brex
 
-Verified contacts (BlitzAPI ✓ — ranked by buyer fit):
+Verified contacts (ranked by buyer fit):
  1. Marisol Hwang · CHRO  (primary)
     marisol@glimmer.health  ·  +1-415-555-0144 (mobile)
  2. James Okafor · VP People
@@ -53,66 +55,63 @@ voice_match: 0.94  ·  eval_score: 0.91
 Open in: [HubSpot] [Lead profile]
          [Trigger detail] [Avoma] [Sequence]
 
-[ ✅ Approve & Send → SmartLead seq ]
+[ ✅ Approve & Send ]
 [ ✏️ Edit ]
 [ 🚫 Skip… ]
 ```
 
 ## How to read the card (top to bottom)
 
-- **Priority 170** means top 5% of accounts the system has ever scored. *"Go now."*
-- **Score breakdown** — three things fired in 90 days. The system explains why this is at the top. Disagree? Audit every claim.
-- **Four verified contacts.** Not one. The draft is to Marisol because she's the CHRO and the buying signal is hers. Want to hit James instead — one click to swap.
-- **Draft preview** — read it inline. No clicking into anything to see what's there.
-- **Deep links** — every claim (funding event, Avoma quote, trigger detail) is one click from the source. Nothing is a black box.
+- **Priority 170** = top 5% of accounts the system has ever scored. *"Go now."*
+- **Score breakdown** — three things fired in 90 days. The system tells you *why* this is at the top. Disagree? Audit every number.
+- **Four verified contacts.** Not one. The draft is to Marisol because she's the CHRO and the buying signal is hers. Want James instead? One click to swap.
+- **Draft preview inline.** No clicking into anything to see what's there.
+- **Deep links** — every claim (the funding event, the Avoma quote, the trigger detail) is one click from its source. Nothing is a black box.
 
 ## The three buttons
 
-**Approve & Send →**
+**✅ Approve & Send**
 
-- Sends the email from your connected mailbox via SmartLead. SmartLead picks up the follow-up sequence — day 3, day 7, day 14, day 21. You don't manage that. It just runs.
-- HubSpot upsert happens too: contact, company, activity note, email logged. No deal created — yet. **The deal is created on reply, not approve.** Outbound isn't pipeline; engagement is.
+- Sends the email from the rep's connected mailbox. Follow-up sequence (day 3 / 7 / 14 / 21) runs automatically.
+- HubSpot upsert happens too: contact, company, activity note, email logged. **No deal created on approve — the deal is created on reply.** Outbound isn't pipeline; engagement is.
 
-**Edit →**
+**✏️ Edit**
 
-- Opens a browser modal with the full draft, the lake panel (Avoma quotes, prior wins, all four contacts). Edit it, swap the recipient if you want, save. Come back to the Slack card with the updated preview. Click Approve.
-- Your edits are training data. The diff between what the agent wrote and what you sent retrains the drafter monthly. **The longer you use this, the better it gets at sounding like you.**
+- Opens the full draft + a lake panel (Avoma quotes, prior wins, all four contacts). Edit it, swap the recipient, save. Come back to Slack with the updated preview. Approve.
+- The diff between agent draft and rep edit is the highest-quality training signal in the system. The longer reps use it, the better it gets at sounding like them.
 
-**Skip…**
+**🚫 Skip…**
 
-- Dropdown: already reached out, wrong contact, not a fit, timing off, other. Required field — no naked skips. Why? Skip reasons are the second-best training signal. The drafter learns what *not* to send.
+- Required dropdown: already reached out / wrong contact / not a fit / timing off / other. **No naked skips.** Skip reasons are the second-best training signal — the drafter learns what *not* to send.
 
-## What you're *not* doing — the whole point
+## What the rep is *not* doing — the whole point
 
-- Not finding contacts. BlitzAPI did that. Verified email + phone.
-- Not researching the company. The card has the funding, the headcount, the org chart.
-- Not writing the email. The drafter wrote it; the eval gate filtered it; you taste-test it.
-- Not logging activity in HubSpot. The approve does it.
-- Not babysitting follow-ups. SmartLead does that.
+- Not finding contacts. The enrichment layer did that.
+- Not researching the company. The card has funding, headcount, org chart.
+- Not writing the email. The drafter wrote it; the eval gate filtered it; the rep taste-tests it.
+- Not logging activity in HubSpot. Approve does it.
+- Not babysitting follow-ups. The sequencer does that.
 
-Your job is **20 seconds of taste**. Read the draft, swap a word if you want, approve. The system handles the rest.
+**The rep's job is 20 seconds of taste.** Read, swap a word if needed, click. The system handles the rest. That's the trade.
 
 ## What happens after
 
-- After approve: the email sends. SmartLead runs follow-ups. If they reply, a HubSpot deal record gets created automatically at Discovery stage — that's when this is pipeline. Until reply, this is outbound, not pipeline. No stale deals cluttering your forecast.
-- If they don't reply after 21 days, the sequence ends, the trigger event archives, the system goes looking for the next signal. Nothing rots.
-- The card decays after 7 days if you don't act. That's a feature. Stale signals are worse than no signals. Skip reasons feed the monthly retrain — the system gets better at not showing you ones you'd skip.
+- **After approve:** email sends, follow-up sequence runs. If the prospect replies, a HubSpot deal gets created automatically at Discovery — that's when this becomes pipeline. Until then, it's outbound. No stale deals cluttering the forecast.
+- **No reply after 21 days:** sequence ends, trigger archives, system goes looking for the next signal. Nothing rots.
+- **The card decays after 7 days** if not acted on. Stale signals are worse than no signals. Decays feed the monthly retrain — the system learns to stop showing what the rep would skip.
 
-Open Slack tomorrow morning, look for the card, taste-test the draft, click. That's the workflow.
+## What you've unlocked (after seeing this)
 
-## What you've unlocked
-
-- **Slack is your window.** You don't go anywhere else.
-- **Priority + score breakdown is the audit.** If you don't trust the number, the system shows you how it got there.
-- **Three buttons. Three jobs. No menus.** Approve / Edit / Skip with reason.
+- **A clear picture of what reps would experience** if the workflow from walkthrough 4 gets operationalized.
+- **A decision frame**: *would your reps spend 20 seconds on this card every morning?* That's the adoption test, and you can answer it now — before anything's built.
+- **Three buttons, three jobs, no menus.** If the card needs a fourth, the design is wrong.
 - **No deal on approve, deal on reply.** Pipeline stays clean.
-- **Your edits and skip reasons train the system.** It gets better at being you.
 
 ## Common questions
 
-- **What if I'm OOO?** Cards decay after 7 days. If you're out, they expire; if a peer covers your accounts, the routing rule (Part 3 §4) handles round-robin.
-- **What if the contact is wrong?** Edit → modal shows all four contacts → pick the right one → save → approve. Wrong-contact skips are tracked and feed the contact-ranking retrain.
-- **What if I want to add my own context to the draft?** Edit. Diff is captured. Your version is what sends.
-- **What if I don't trust the priority score?** Click *Trigger detail* — full SQL breakdown, every signal listed with its weight. If you disagree, skip with reason "wrong_priority" — that feeds the retrain.
-- **What if SmartLead's follow-up template doesn't fit?** Each signal type has its own SmartLead campaign with tuned follow-ups. You can override step 1 (the approved draft); steps 2–5 use the campaign defaults. If the defaults are off, flag in `#signals-feedback` — that's a signal to retune.
-- **Can I get more than 10 a day?** No. The top-10 cap is intentional. More than 10 means you skim; ≤ 10 means you taste-test. Volume is the enemy of conversion.
+- **Why is this in the walkthroughs if it's not something you'd install yet?** Because deciding whether to *eventually* build it is more important than building it. Reading this card is the simplest test for whether the workflow is worth operationalizing — long before a single API key gets paid for.
+- **What if a rep is OOO?** Cards decay after 7 days. Routing handles round-robin to whoever's covering.
+- **What if the contact is wrong?** Edit → swap → save → approve. Wrong-contact skips train the contact-ranking model.
+- **What if a rep doesn't trust the priority score?** Click *Trigger detail* — full SQL breakdown, every weight visible. Skip with reason "wrong_priority" — that feeds the retrain.
+- **Why a hard cap at 10/day?** More than 10 means reps skim. ≤10 means they taste-test. Volume is the enemy of conversion.
+- **When would I actually deploy this?** Once moves 1–5 in walkthrough 4 land cleanly *and* you've decided the bottleneck is worth the marginal execution-stack cost. Until both are true, the card shape is the artifact you use to align stakeholders on what "good" looks like.
