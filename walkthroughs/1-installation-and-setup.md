@@ -1,139 +1,65 @@
 # 1 — Installation and Setup
 
-> Audience: Alex (+ RevOps if there is one) · Outcome: lake alive, daily sync running, repo cloned, agents wired to act in your apps
+> Audience: Alex (+ RevOps if there is one) · Outcome: terminal ready, repo cloned, Airbyte syncing every source daily into Supabase
 
 ## What this walkthrough covers
 
-How you'd stand up the foundation: every Mento source authorized via OAuth, mirrored daily into Supabase, with the `mento-gtm/` repo cloned and ready for Claude Code to read *and act*. Your exact stack may differ — swap your equivalent for any tool below.
+Three things, in order: **terminal setup, clone the repo, set up Airbyte.** Plus the reasoning behind both the 7-step OS shape and the tech-stack picks — so if you'd run this differently, you know what you'd be trading.
 
-## My heuristics for picking the stack
+## Step 1 — Terminal setup
 
-A few rules I default to before I touch a single config file. They've saved me more weekends than I can count.
+Everything below assumes a working terminal with Claude Code installed.
 
-1. **OAuth > API keys, every time.** Anything that supports OAuth, go OAuth. API keys leak, expire, rotate at the worst moment, and require you to babysit a secrets manager. OAuth flows are bound to a workspace admin's identity — when Alex's permissions change, the integration changes with him.
-2. **Don't build what a connector already does.** The two places GTM-engineering teams die are (a) custom scrapers, (b) hand-rolled API integrations. Both are pure undifferentiated plumbing. Use Airbyte (for *ingestion* — data into a warehouse) and One (for *actions* — agents calling APIs live) before you write a line of integration code.
-3. **Two integration layers, two purposes.** Airbyte = read-side (daily sync of HubSpot/Avoma/Slack into Supabase, for analysis). One = write-side (agents upserting contacts, posting Slack cards, creating SmartLead campaigns, in real time). They're complementary — you'll use both.
-4. **Sign up first, configure second.** Provision every account before you start wiring anything. Nothing burns more momentum than getting halfway through a setup and discovering you need to wait 24 hours for a HubSpot Enterprise trial or a Crunchbase Pro approval. Day 1 is sign-up day, day 2 is wire-up day.
-5. **Daily sync is the right cadence for the baseline.** Most GTM signals — funding, exec hires, headcount, lifecycle stage — are 6–18 month patterns, not real-time. Daily sync is cheap, reliable, and right. Real-time webhooks (Crunchbase funding events, SmartLead replies) sit *on top of* the daily lake, not instead of it.
-6. **Validate against your transcripts, not your gut.** Once the lake is alive, the first thing to do is point Claude Code at Avoma and ask *"do the patterns you see in the data match what the reps said on calls?"* If they don't, the lake is wrong (bad ingestion, bad schema) — fix it before building anything on top.
-7. **Show output before deploying.** Every new piece of the stack — every Trigger.dev job, every signal rule — gets run locally, returns JSON to the terminal, and gets eyeballed *before* it ships to production. Automations earn trust; they're not granted it.
+```bash
+# Claude Code (one-line install)
+curl -fsSL https://claude.ai/install.sh | sh
 
-## What you need installed before starting
+# git, if you don't already have it
+xcode-select --install        # macOS
+# (or apt/brew/winget on your OS)
 
-| Layer | Tool | Why |
-|---|---|---|
-| Repo working surface | **Claude Code** + **GitHub Desktop** + git | Where stakeholders ask the system questions |
-| Data lake | **Supabase** project (free tier fine to start) | Postgres + pgvector — system of record |
-| Ingestion (read-side) | **Airbyte** (Cloud or self-hosted OSS) | OAuth connectors, 350+ sources, daily sync to Supabase |
-| Agent action layer (write-side) | **One** ([withone.ai](https://withone.ai)) | OAuth-based integration platform, 250+ apps, 47K+ pre-built actions for agents — agents call `actions execute hubspot upsert_contact` instead of writing API code |
-| Orchestration | **Trigger.dev** project | Where the signal-workflow jobs run (walkthrough 4) |
-| Source-system admin access | **HubSpot**, **Avoma**, **Slack** | Workspace admin needed to authorize OAuth scopes |
-| Outbound execution | **SmartLead** account | Multi-channel sequencing (email + LinkedIn + SMS) |
-| Enrichment API keys | **BlitzAPI**, **Crunchbase Pro**, **Sumble**, **BuiltWith / TheirStack** | Verified contacts + signal sources |
-
-Stack choices are illustrative — if Mento already uses Fivetran (instead of Airbyte) or Composio (instead of One), the pattern still works. The shape is what matters: OAuth ingestion + OAuth agent actions + a warehouse in the middle.
-
-## Step 1 — Sign-up day: provision everything before you wire anything
-
-Before any OAuth flow, every account exists:
-
-```
-□ Claude Code installed (curl ... | sh)
-□ GitHub Desktop installed, mento-gtm repo created (empty)
-□ Supabase project provisioned (free tier)
-□ Airbyte Cloud account (or OSS self-hosted)
-□ One account (withone.ai) — install: brew install one or npm i -g @withone/cli
-□ Trigger.dev project created
-□ HubSpot workspace admin verified
-□ Avoma workspace admin verified
-□ Slack workspace admin verified
-□ SmartLead account provisioned
-□ BlitzAPI, Crunchbase Pro, Sumble, BuiltWith — accounts active, keys in hand
+# GitHub Desktop — optional but recommended for non-CLI stakeholders
+# https://desktop.github.com
 ```
 
-Day 1 is checking boxes. Day 2 is wiring. Don't try to do them on the same day.
+That's the entire local environment. No Node, no Python, no Docker on the local machine — Claude Code is the workbench, and everything else (Supabase, Airbyte, Trigger.dev) runs in the cloud.
 
-## Step 2 — Clone the repo, see the shape
+## Step 2 — Clone the repo
 
 ```bash
 git clone git@github.com:mento/mento-gtm.git
 cd mento-gtm/
+claude     # opens Claude Code in this directory
 ```
 
-The tree:
+The tree you should see:
 
 ```
 mento-gtm/
-├── foundation/                 # who Mento is — synthesis, ICP, playbooks
-├── data/                       # mirrors of HubSpot, Avoma, Slack, enrichment (filled by Airbyte)
-├── actions/                    # One action specs — what agents can DO in each app
-├── accounts/<account-slug>/    # one folder per top account, auto-assembled
-├── bottlenecks/                # captured in walkthrough 3
-├── ideas/                      # rep-flagged what-ifs
-└── sql/                        # dedupe, scoring, lifecycle — the playbooks
+├── foundation/        # who Mento is — synthesis, ICP, playbooks
+├── data/              # mirrors of HubSpot, Avoma, Slack, enrichment (filled by Airbyte)
+├── accounts/          # one folder per top account, auto-assembled
+├── bottlenecks/       # captured in walkthrough 3
+├── ideas/             # rep-flagged what-ifs
+└── sql/               # dedupe, scoring, lifecycle — the playbooks
 ```
 
-`data/` is what flows in (read-side, via Airbyte). `actions/` is what flows out (write-side, via One). Everything else is the rules-about-the-data that Claude Code uses to reason.
+`data/` is empty until Airbyte is wired up — that's the next step.
 
-## Step 3 — Airbyte: authorize every source via OAuth (read-side)
+## Step 3 — Set up Airbyte
 
-In the Airbyte dashboard, add one source at a time:
+Provision an Airbyte Cloud workspace (or self-host OSS — both work). Then in the dashboard, add each source, one at a time:
 
-1. **HubSpot** → *Authorize* → standard HubSpot OAuth → destination = Supabase Postgres → sync schedule = *daily*, full refresh on accounts/contacts/deals, incremental on activities
+1. **HubSpot** → *Authorize* → standard HubSpot OAuth → destination = Supabase Postgres → daily sync, full refresh on accounts/contacts/deals, incremental on activities
 2. **Avoma** → OAuth → destination = Supabase → daily sync of transcripts + summaries
 3. **Slack** → OAuth → scope the deal-discussion channels Alex picks → daily sync of threads
-4. **Apollo / Crunchbase / Sumble** → API-key sources (no OAuth on these) — paste keys into Airbyte's secrets manager, **never** into code
+4. **Crunchbase / Sumble / Apollo** → API-key sources (no OAuth on these) — paste keys into Airbyte's secrets manager, **never** into code
 
-Airbyte is the only piece of the read-side we get to *not build*. No scrapers. No babysitting webhooks. Alex authorizes each source once via the same OAuth flow he's done a hundred times — Google, GitHub, anything — and the daily sync is live.
-
-## Step 4 — One: authorize the same apps for agent actions (write-side)
-
-This is the piece most case studies skip. Pulling data is solved; **letting agents *act* on it** is where everything-but-One asks you to write integration code.
-
-```bash
-# install if you haven't
-brew install one
-
-# authorize each platform — One handles the OAuth flow in your browser
-one --agent connect hubspot
-one --agent connect slack
-one --agent connect gmail        # for sending the approved drafts
-one --agent connect smartlead    # for the multi-step sequence handoff
-one --agent connect notion       # if you use Notion for playbooks/specs
-```
-
-Each command opens a browser tab, runs the OAuth dance, stores the token in `~/.one/config.json`. Done.
-
-From this point, agents in `mento-gtm/` can do things like:
-
-```bash
-one --agent actions execute hubspot upsert_contact -d '{
-  "email": "marisol@glimmer.health",
-  "properties": {
-    "firstname": "Marisol",
-    "lastname": "Hwang",
-    "jobtitle": "CHRO",
-    "source": "mento-signal-trigger:chro-hire-glimmer"
-  }
-}'
-
-one --agent actions execute slack send_message -d '{
-  "channel": "#signals-alex",
-  "blocks": [...]    # the signal card payload
-}'
-```
-
-No API integration code. No managing tokens. No "did we use v1 or v2 of HubSpot's API." The agent says "upsert this contact" — One does it.
-
-**Why it matters here:** when Claude Code drafts an email and the rep approves it in Slack, the *approve* button needs to (a) log the activity in HubSpot, (b) hand the lead off to SmartLead's sequencer, (c) post a confirmation back in Slack. Three apps, three API surfaces. One call each via One. No custom integration code on Mento's side.
-
-## Step 5 — Confirm the lake is alive in Supabase
-
-In the Supabase dashboard, the tables Airbyte just created should appear:
+After the first sync runs, Supabase will have:
 
 - `hubspot_contacts`, `hubspot_accounts`, `hubspot_deals`, `hubspot_activities`
 - `avoma_transcripts`, `avoma_summaries`
-- `slack_messages` (the deal-channel threads)
+- `slack_messages`
 - `crunchbase_funding_events`, `crunchbase_people`
 - `sumble_hiring_signals`, `sumble_headcount`
 
@@ -152,52 +78,71 @@ order by transcript_count desc
 limit 10;
 ```
 
-If counts look reasonable, the lake is alive.
+If those counts look reasonable, the lake is alive. You're done with setup.
 
-## Step 6 — Validate against transcripts before building anything
+---
 
-This is the step that catches half of all bad ingestions. Before you trust the lake, open Claude Code and ask:
+## My reasoning — why the 7-step shape
 
-> *"For my last 5 closed-won deals, compare what HubSpot says happened (deal_source, owner, stage transitions) against what the Avoma transcripts say (who was on the call, what topics, what the buyer's stated trigger was). Tell me where they agree and where they disagree."*
+Most GTM-engineer hires jump straight to "build the signal workflow." That's a mistake. The 7-step shape exists because the *order* matters more than any individual step.
 
-If the lake is healthy, Claude can cross-reference both sources cleanly and the disagreements are interesting (HubSpot under-reports, transcripts over-detail). If the lake is broken, you'll see obvious gaps — transcripts missing for deals that obviously had calls, contacts not linked to accounts, stage transitions out of order. **Fix those before walkthrough 2.**
+**Foundation comes first, build comes second, operate comes third.** Skip any of those and the next two collapse.
 
-## Step 7 — The repo's `data/` folder fills itself
+| Step | What it is | Why it's in this position |
+|---|---|---|
+| **1. Repo per client** | One source-of-truth folder per client team | The repo is the artifact. No repo = no place for the OS to live. Has to exist before anything ingests into it. |
+| **2. Data + playbooks ingested daily** | Airbyte → Supabase, with playbooks (dedupe, scoring, lifecycle) versioned as SQL | The lake is the substrate. Every later step assumes you can SQL across everything Mento has. Skip this and steps 4–7 are blind. |
+| **3. Stakeholders into Claude Code on the repo** | Alex (then anyone) runs prompts against their own data | If stakeholders never open it, the OS dies in week one. Adoption *precedes* capability — a system nobody uses has zero capability regardless of what it can do. |
+| **4. Capture + prioritize bottlenecks** | Bottlenecks surfaced from the lake (not interviews) | You can't build the right thing first without ranking what to build. The reason this is *step 4*, not step 1, is that you need 1–3 to be alive before the lake can credibly surface a bottleneck. |
+| **5. Agentic dev to ship solutions** | Spec → research → test → ship the #1 bottleneck | This is the build the brief asks for. It's *step 5* not step 1 because shipping into a foundation that isn't there is what kills GTM-engineering teams. |
+| **6. Roll out to the team** | The adoption mechanic for reps (not stakeholders) — Slack cards, HITL at draft, walkthroughs | Reps adopt differently than stakeholders. Stakeholders open Claude Code; reps live in Slack. Step 3 is for stakeholders; step 6 is for reps. |
+| **7. Measure → pipeline + revenue** | Closed-loop attribution on what shipped | The only legitimate success metric. Without this, you can't tell whether step 5 worked, and you can't re-tune the weights for the next ship. |
 
-A small ingest worker watches the Supabase tables and writes markdown front-mattered snapshots into the repo tree. After a day, `data/` looks like:
+**Three things to notice about the shape:**
 
-```
-mento-gtm/data/
-├── hubspot/
-│   └── 2026-05-11/
-│       ├── accounts.snapshot.md
-│       ├── deals.snapshot.md
-│       └── activities.snapshot.md
-├── avoma/
-│   └── transcripts/
-│       └── 2026-05-11/...
-├── slack/
-└── signals/
-```
+1. **Steps 1–4 are the foundation, and they're the part that's usually skipped.** A GTM engineer who shows up in week one and starts building automations has skipped the foundation and is gambling that the founder's gut is right. Sometimes it is. Mostly it isn't.
+2. **Step 5 is *one* step, not the whole job.** The signal workflow lives inside step 5. So does the *next* thing Mento wants to build. So does the one after that. The OS is built once; the things shipped inside it are continuous.
+3. **Steps 6 and 7 are about durability.** Without 6, the build dies on contact with reps. Without 7, you can't tell which weights to retune next month. Both are what turns a project into a system.
 
-The Supabase tables are the **system of record**. The repo files are what **Claude Code reads** when you're working in the terminal. Same data, two views — one for math, one for context.
+## My reasoning — why this tech stack
+
+Three principles drive every tool pick below:
+
+1. **OAuth > API keys, every time.** API keys leak, expire, rotate at the worst moment, and require babysitting a secrets manager. OAuth flows are bound to a workspace admin — when permissions change, the integration changes with them.
+2. **Don't build what a connector already does.** GTM-engineering teams die in two places: custom scrapers, and hand-rolled API integrations. Both are pure undifferentiated plumbing. If a connector exists, use it.
+3. **Daily is the right cadence for the baseline.** Most signals — funding, exec hires, headcount, lifecycle — are 6–18 month patterns. Real-time webhooks (Crunchbase funding events, SmartLead replies) sit *on top of* the daily lake, not instead of it.
+
+| Tool | Why this one | What I'd swap it for |
+|---|---|---|
+| **Claude Code** | The repo is the interface, the terminal is the workbench. Claude Code reads files, runs SQL, edits playbooks, all in-context. | Cursor or another agentic IDE — pattern survives, the file-first approach is what matters. |
+| **GitHub** | Version control is non-negotiable. Every playbook, spec, signal rule is a file. | GitLab / Bitbucket — same shape. |
+| **Supabase** | Postgres + pgvector + auth + storage in one. Free tier covers the early lake. The pgvector matters for Avoma topic-match scoring. | Raw Postgres + Pinecone — works, more moving parts. |
+| **Airbyte** | OAuth-based, 350+ connectors, daily sync to Supabase. The only piece of the read-side we get to *not build*. | Fivetran (more polished, more expensive) or Estuary (real-time, overkill at this scale). |
+| **Trigger.dev** | Code-first orchestration. Jobs are TypeScript files, version-controlled, code-reviewed. Free tier covers a 2-rep team. | Inngest (similar shape) or n8n (for ops logic that changes weekly without a deploy — different use case, both can coexist). |
+| **SmartLead** | Multi-channel sequencing (email + LinkedIn + SMS) with webhook events for sent/open/reply/booked. The outcomes loop in step 7 reads these. | Outreach or Apollo Sequences — same pattern, different price points. |
+| **BlitzAPI** | Verified email + phone for contacts. Flat-rate pricing ($499 email + $599 phone, unlimited) — predictable at Mento's scale. | Apollo / ZoomInfo for verified contacts — credit-based, harder to predict cost on a 200-list working hard. |
+| **Crunchbase Pro** | Funding events, exec changes, headcount. Webhook for real-time funding announcements. | The Org + manual TechCrunch RSS — works as cross-check, not as primary. |
+| **Sumble** | API for hiring signals (CHRO/VP People hires), layer-3 director changes, headcount deltas. | Greenhouse/Lever job-board APIs as cross-check; no full replacement at this fidelity. |
+
+**Where I'm opinionated, where I'm flexible:**
+
+- **Opinionated:** OAuth-first, version-controlled playbooks, daily sync baseline, deterministic SQL for scoring (not LLM-judgment-as-scoring). These are load-bearing — change them and the whole shape collapses.
+- **Flexible:** every specific vendor above. Fivetran/Airbyte, Trigger.dev/Inngest, SmartLead/Outreach — the *shape* matters; the brand on the bill doesn't.
 
 ## What you've unlocked
 
-- **Airbyte handles read-side plumbing.** OAuth once per source. Daily sync to Supabase. No scrapers.
-- **One handles write-side plumbing.** OAuth once per app. Agents call `actions execute` instead of writing API code.
-- **Supabase is the system of record.** All derived data — scores, dedupe, lifecycle — lives there.
-- **The repo is the working surface.** It mirrors the lake into markdown + SQL files Claude Code can read, and the `actions/` folder is what Claude Code uses to act.
-- **No API keys floating around.** OAuth for HubSpot / Avoma / Slack / Gmail / SmartLead via Airbyte and One; secrets manager for the API-key-only sources (Crunchbase, Sumble, BlitzAPI).
+- **Terminal set up.** Claude Code + git, no other local dependencies.
+- **Repo cloned.** The OS has a home on Alex's machine.
+- **Airbyte syncing daily.** Two years of HubSpot, Avoma, and Slack data, mirrored into Supabase, ready to query.
+- **You know *why* this shape and *why* this stack.** When something needs to change, you'll know what's load-bearing and what's swappable.
 
-From this moment forward, every stakeholder can clone this repo, open Claude Code, and both *ask* questions across the lake *and* take actions in HubSpot / Slack / Gmail / SmartLead — without writing a line of integration code. That's the foundation for walkthroughs 2–5.
+From this moment forward, every stakeholder can clone this repo, open Claude Code, and ask questions across HubSpot, Avoma, and Slack at the same time without writing a line of SQL. That's the foundation for walkthroughs 2–5.
 
 ## Common questions
 
-- **Why two integration layers (Airbyte + One)?** Different purposes. Airbyte is for *batch reads* (mirror the world into a warehouse, daily). One is for *live writes* (agents acting on the world, now). Trying to do both with one tool means picking between "great syncs, awkward actions" and "great actions, awkward syncs."
-- **Does One have a connector for X?** 250+ apps as of 2026 — HubSpot, Salesforce, Shopify, Slack, Gmail, Zendesk, Stripe, Notion, GitHub, Apollo, Brevo, Klaviyo, Gong, Fireflies, and 230+ more. Check `one --agent platforms list`. If it's not there, write a custom action (rare).
-- **Does Airbyte have a connector for X?** 350+ connectors. HubSpot, Avoma, Slack, Apollo, Crunchbase, Sumble are all native. Missing one? Airbyte's CDK lets us write a custom connector in a day.
-- **Is this expensive?** Airbyte Cloud per-row pricing — Mento's scale runs under $100/mo, often under $50. One has a free tier for early use; paid plans scale with action volume. Supabase free tier covers the early lake.
-- **What if HubSpot data is messy?** That's what the dedupe playbook (`sql/dedupe.sql`) is for. Mirror it, clean it in Supabase, push verified properties back via One. Detailed in Part 2 Q1.
-- **Who else needs to authorize?** Just Alex for OAuth flows (workspace admin on HubSpot, Avoma, Slack, Gmail). API-key sources (Crunchbase, Sumble, BlitzAPI) get added to Airbyte's secrets manager once.
+- **Does Airbyte have a connector for X?** Airbyte ships 350+ connectors as of 2026; HubSpot, Avoma, Slack, Apollo, Crunchbase, Sumble are all natively supported. If something's missing, Airbyte's CDK lets us write a custom connector in a day.
+- **Is this expensive?** Airbyte Cloud's pricing is per-row-synced. At Mento's scale (5K contacts, ~1K deals, ~12 won-deal transcripts) the daily sync runs comfortably under $100/mo, often under $50.
+- **What if HubSpot data is messy?** That's what the dedupe playbook (`sql/dedupe.sql`) is for. Mirror it, clean it in Supabase, push verified properties back. Detailed in Part 2 Q1.
+- **Who else needs to authorize?** Just Alex for OAuth flows (workspace admin on HubSpot, Avoma, Slack). API-key sources (Crunchbase, Sumble, BlitzAPI) get added to Airbyte's secrets manager once.
 - **What about real-time signals like funding announcements?** Daily is the baseline. Crunchbase's webhook for funding events fires immediately on announcement — lands in a separate `signal_events` table, on top of the daily lake. Covered in walkthrough 4.
+- **Why not start with the signal workflow directly?** Because shipping into a foundation that isn't there is what kills GTM-engineering teams. See "My reasoning — why the 7-step shape" above.
