@@ -9,7 +9,7 @@ Mento's brief asks for three things: diagnose the problem, design a data foundat
 
 So my submission doesn't propose an automation. **It proposes a GTM Operating System** — a versioned, queryable, multi-stakeholder repo that ingests everything Mento already has and lets the team work *with* their data instead of around it. The signal workflow Mento asked for in Part 3 is one component inside it. Parts 1 and 2 are the foundation that makes Part 3 worth shipping.
 
-The shape is a 7-step pattern Tomas Cetner and I have been refining for building GTM operating systems for client teams in Claude Code. I've been building a personal version of this for a year (my own knowledge graph, the CIA — 350+ nodes, typed wiki-links, daily sync, agentic build discipline). Being explicit about the shape is how Mento evaluates whether I'm pattern-matching or pattern-applying.
+The shape is a 7-step pattern I have been refining for building GTM operating systems for client teams in Claude Code. I've been building a personal version of this for a year (my own knowledge graph, the CIA — 350+ nodes, typed wiki-links, daily sync, agentic build discipline). Being explicit about the shape is how Mento evaluates whether I'm pattern-matching or pattern-applying.
 
 ## Three ways to read this repo 
 
