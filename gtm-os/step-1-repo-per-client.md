@@ -36,6 +36,8 @@ mento-gtm/
 
 **Output:** `mento-gtm/` repo live, with empty-but-shaped folders ready for Step 2 to fill.
 
+**Full recommended tree:** [`repo-file-structure.md`](./repo-file-structure.md) — every folder, what goes in it, and how it maps to each OS step. The tree above is the headline; that doc is the contract.
+
 ## Which take-home section lives inside this step
 
 [Part 1 §1 — *"Stand up the GTM OS — repo + full daily ingestion"*](../case-study/part1-diagnose-and-prioritize.md)

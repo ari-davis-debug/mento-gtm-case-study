@@ -41,6 +41,7 @@ mento-case-study/
 | **Get something working on your data right now** | [`quickstart/`](./quickstart/) | 3 hands-on walks. **Required stack is just Claude Code + GitHub.** Daily data lake (Airbyte → Supabase/BigQuery/your pick) is an optional level-up. Walks OS steps 1–4 live. |
 | **The direct take-home answers** | [`case-study/`](./case-study/) | One-page briefs answering each of Mento's three questions. Read in order, or jump to the one you care about. |
 | **The framing — how I think about the shape** | [`gtm-os/`](./gtm-os/) | The 7-step OS, one file per step. Each step links to the part of the case study that lives inside it. |
+| **The exact `mento-gtm/` file tree I'd stand up** | [`gtm-os/repo-file-structure.md`](./gtm-os/repo-file-structure.md) | Full recommended folder structure — modeled after how the CIA structures `clients/<client>/`, GTM-shaped. Every folder mapped to the OS step it lives inside. |
 
 **No wrong order.** Each folder stands alone. The README is the bridge.
 

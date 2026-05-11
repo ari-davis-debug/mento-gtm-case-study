@@ -21,15 +21,13 @@ A two-rep team that has closed deals on instinct for two years will reject any s
 | **Rep-co-authored bottlenecks** | The thing being shipped (Step 5) is one of the bottlenecks the team ranked in Step 4 — not an automation a GTM engineer guessed they needed | Reps adopt what they helped pick. |
 
 ### The written walkthrough series
-The adoption mechanic in practice. Five written walkthroughs live in [`quickstart/`](../quickstart/):
+The adoption mechanic in practice. Three walkthroughs live in [`quickstart/`](../quickstart/) — they cover OS steps 1–4 (the foundation a new stakeholder needs to be productive on day one):
 
-1. **Installation and setup** — Airbyte OAuth into HubSpot/Avoma/Slack, repo tree tour
-2. **First prompts in Claude Code** — what a stakeholder does in their first 45 minutes
-3. **Bottleneck capture** — how Step 4 surfaces the top 1–2 problems
-4. **Shipping the signal workflow** — spec → tests → ship, with HITL placement
-5. **Rep experience in Slack** — the signal-card UX
+1. [**Installation and setup**](../quickstart/1-installation-and-setup.md) — clone the repo, drop CSVs/transcripts/decks into `data/`, optional Airbyte daily lake
+2. [**First prompts in Claude Code**](../quickstart/2-first-prompts-in-claude-code.md) — what a stakeholder does in their first 45 minutes
+3. [**Bottleneck capture**](../quickstart/3-bottleneck-capture.md) — how Step 4 surfaces the top 1–2 problems
 
-Mento can hand the walkthroughs to the next hire and onboard them in a morning.
+Steps 5–7 (signal-workflow build, rep Slack UX, closed-loop attribution) aren't walkthroughs because they're the work I'd do *once embedded* — they need real reps, real deals, and a month of running data. Mento can hand the three walkthroughs to the next hire and onboard them in a morning.
 
 ### Slack-card design (the actual UX rep sees)
 Detailed in [Part 3 §(6)](../case-study/part3-buying-signal-workflow.md). One-page brief, three buttons (Approve & Send / Edit / Skip), every claim deep-linked to source.

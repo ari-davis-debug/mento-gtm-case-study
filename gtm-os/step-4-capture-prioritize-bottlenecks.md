@@ -45,6 +45,10 @@ The illustrative example above is exactly that: *illustrative*. The actual top-1
 
 The Phase 0 data archaeology paragraph + the YAML schema example above are the same as in Part 1 §3.
 
+## Quickstart that walks this step live
+
+[**`quickstart/3-bottleneck-capture.md`**](../quickstart/3-bottleneck-capture.md) — run the Phase 0 distrust-the-CRM prompt against your own won deals, capture bottlenecks as files with the schema above, rank by impact × buildability × trust. Ends with the top-1 that earns the right to be built in Step 5.
+
 ## What's next
 
 [Step 5 — Agentic dev to ship solutions](./step-5-agentic-dev-ship-solutions.md) — the top-ranked bottleneck (assumed to be the signal-coverage gap, for the purpose of Part 3) gets the spec → research → test → ship treatment.

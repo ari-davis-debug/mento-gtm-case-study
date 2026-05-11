@@ -34,6 +34,10 @@ When Alex says *"I want this 200-list signal-check to run every Monday morning"*
 
 The 3 starter prompts above are the same ones in Part 1 §2. The reason they're in the take-home: this is the moment the OS goes from "well-organized files" to "a system Alex actually uses to answer his own questions."
 
+## Quickstart that walks this step live
+
+[**`quickstart/2-first-prompts-in-claude-code.md`**](../quickstart/2-first-prompts-in-claude-code.md) — the same three prompts above, but run live against your own data. Planning mode, multi-terminal setup, and how Claude finds context on its own. ~45 minutes.
+
 ## What's next
 
 [Step 4 — Capture + prioritize bottlenecks](./step-4-capture-prioritize-bottlenecks.md) — having Alex inside the repo querying his own data is what surfaces what to build first. We don't run interviews to find bottlenecks; we let the data speak when stakeholders query it.
