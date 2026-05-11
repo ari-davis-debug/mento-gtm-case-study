@@ -5,13 +5,9 @@
 
 ## The Slack message I got
 
-> **From Alex (Mento, technical co-founder), Slack DM:**
+> **Day one, Slack DM:**
 >
-> *"Hey — quick context for the take-home. We're a leadership-development startup, ~2 years in. Two reps right now (one founder-rep, one IC), most of our customers came through warm intros and exec dinners — Brex, Vercel, Anthropic, SoFi, a few more. Mid-7-figures ARR, growing, but we've never had a real GTM motion.*
->
-> *The problem: HubSpot is a disaster. ~5K contacts, dupes everywhere, 40% missing firmographics, no consistent lifecycle stages, no ICP scoring. We have a 200-ish account list we've been meaning to activate but never have. We record everything in Avoma. We know our customers tend to hit us around funding events, fast headcount growth, or a new CHRO/VP People — but nobody's automated checking for any of that.*
->
-> *We want a GTM engineer to come in and figure out: (1) what's the first 60 days look like, (2) how do we fix the data foundation so it stops decaying, (3) design + build a workflow that monitors buying signals on the 200-list, enriches + scores them, and routes to the right rep with a personalized draft (but doesn't auto-send). Three parts to the take-home. Send back what you'd actually do."*
+> *"Hey — excited to have you here. Here's where things stand: our HubSpot is a mess. We have contacts from events, inbound leads, customer referrals, and past outreach all living in the same place with no real structure. We also have call recordings in Avoma and a list of ~200 target accounts we've been meaning to activate. We know coaching demand spikes when companies hit certain inflection points — new funding, rapid hiring, a new CHRO — but we have no system to catch those signals. I'd love for us to have something working within 60 days. What would you build, and in what order?"*
 
 **The real pain in that message isn't the messy HubSpot.** It's that **Mento has been winning deals through warm intros and exec dinners for two years, and nobody has written down why those deals close** — in a place the team can actually work in.
 
