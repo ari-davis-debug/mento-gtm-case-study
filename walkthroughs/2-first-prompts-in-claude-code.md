@@ -11,7 +11,7 @@ Three prompts. Plain English. No SQL required (Claude writes it for you and show
 ## Setup
 
 - Claude Code installed and open in `mento-gtm/` (walkthrough 1)
-- First Airbyte sync has run — Supabase has rows in `hubspot_*`, `avoma_*`, `slack_*`
+- Data is in `mento-gtm/data/` — either as files (CSV exports, transcripts, decks) or, if you set up the optional Airbyte sync, as tables in your data lake destination
 - Two terminal panes — one for the Claude Code chat, one for repo work (handy when you want to peek at the SQL it ran or the file it edited)
 
 A few Claude Code things worth knowing as you start playing:
@@ -29,11 +29,13 @@ In Claude Code, type:
 
 > *"Pull my last 5 closed-won deals and tell me what they had in common — buyer role, trigger event in the 90 days before close, time-to-close. Show me the SQL you ran."*
 
-Claude reads across:
+Claude reads across whatever's in `data/`:
 
-- `hubspot_deals` → last 5 closed-won
-- `avoma_transcripts` → discovery calls for each deal
-- `hubspot_contacts` + `hubspot_activities` → who was on the calls, when meetings happened
+- HubSpot deals export → last 5 closed-won
+- Avoma transcripts → discovery calls for each deal
+- HubSpot contacts + activities → who was on the calls, when meetings happened
+
+(If you wired the optional Airbyte sync, Claude SQLs the destination tables instead — same answer, fresher data.)
 
 A typical output:
 

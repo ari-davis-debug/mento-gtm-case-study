@@ -46,16 +46,25 @@ Two reasons:
 1. **The foundation is the half that's usually skipped.** GTM-engineer hires jump to "build the signal workflow" and skip 1–4. That's the failure mode. These three walkthroughs make sure Mento *sees* the foundation working before anyone commits to building on top of it.
 2. **Steps 5–7 require real reps, real deals, real revenue lift.** You can't fake that in a take-home. The shape of them is documented (`gtm-os/step-5`, `step-6`, `step-7`) — the doing of them is what I'd do once hired.
 
-## The foundation stack — four tools, all OAuth or free-tier
+## The foundation stack — two required tools, one optional level-up
+
+**Required:**
 
 | Tool | What it does |
 |---|---|
-| **Claude Code** | The workbench. Reads the repo, runs SQL against Supabase, edits playbooks in-context. |
+| **Claude Code** | The workbench. Reads the repo, edits playbooks in-context, runs SQL when you wire a data lake. |
 | **GitHub** | Version control for the repo. Every playbook, signal rule, bottleneck is a file. |
-| **Supabase** | The lake. Postgres + pgvector. Free tier covers the early lake. |
-| **Airbyte** | OAuth ingestion of HubSpot, Avoma, Slack into Supabase, daily. |
 
-That's it. No Trigger.dev, no SmartLead, no BlitzAPI, no Crunchbase, no Sumble. Those only matter *if* you decide to operationalize one of the bottlenecks walkthrough 3 surfaces — and that's an execution decision, not a foundation decision.
+That's the minimum. Drop CSVs / transcripts / decks into `mento-gtm/data/` and walkthroughs 2 and 3 work fine.
+
+**Optional level-up (when you want a daily data lake instead of manual exports):**
+
+| Tool | What it does |
+|---|---|
+| **Airbyte** | OAuth-based daily sync of HubSpot, Avoma, Slack. 350+ connectors. |
+| **Destination** (Supabase / BigQuery / Postgres / flat files) | Where Airbyte writes. Supabase is fastest to wire up; BigQuery scales better; flat files back into the repo work too. Pick the one closest to how the team already operates. |
+
+**What's NOT in the foundation:** Trigger.dev, SmartLead, BlitzAPI, Crunchbase, Sumble. Those only matter *if* you decide to operationalize one of the bottlenecks walkthrough 3 surfaces — that's an execution decision (OS steps 5–6), not a foundation one.
 
 ## How each walkthrough is structured
 

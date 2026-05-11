@@ -51,8 +51,9 @@ mento-case-study/
 │                                                                     │
 │   1. Repo per client            ─┐                                  │
 │   2. Data + ops models +         │  Foundation                      │
-│      playbooks ingested daily    │                                  │
-│      (Airbyte → Supabase)        │                                  │
+│      playbooks into the repo     │                                  │
+│      (2b optional: data lake     │                                  │
+│       via Airbyte)               │                                  │
 │   3. Stakeholders into          ─┤                                  │
 │      Claude Code on the repo     │                                  │
 │   4. Capture + prioritize       ─┘                                  │
@@ -78,7 +79,7 @@ This is the spine. Each step of the OS gets a file in `gtm-os/` and links into t
 | OS Step | What it is | Where the take-home lives inside it |
 |---|---|---|
 | **1. Repo per client** | Stand up `mento-gtm/` as the single source-of-truth repo | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) — repo tree, Airbyte OAuth, daily sync |
-| **2. Data + playbooks ingested daily** | Everything Mento has (HubSpot, Avoma, Slack, 200-list, enrichment) flows into Supabase daily, with the rules-about-the-data as playbooks in the repo | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) — *"why everything, daily"* + **all of [Part 2](./case-study/part2-data-foundation.md)** — dedupe / enrichment / ICP scoring / lifecycle = the playbooks |
+| **2. Data + operating models + playbooks into the repo** | Board decks, sales playbooks, 90-day deal/account/contact snapshot, meeting transcripts — into `data/` so Claude can find them. **2b (optional):** daily data lake via Airbyte (Supabase / BigQuery / your pick) when manual exports get old | [Part 1 §1](./case-study/part1-diagnose-and-prioritize.md) — *"why everything, daily"* + **all of [Part 2](./case-study/part2-data-foundation.md)** — dedupe / enrichment / ICP scoring / lifecycle = the playbooks |
 | **3. Stakeholders into Claude Code on the repo** | Alex + reps onboard via 1:1 sessions; first prompts run against their own data. Written walkthroughs in [`walkthroughs/`](./walkthroughs/) show how to stand it up. | [Part 1 §2](./case-study/part1-diagnose-and-prioritize.md) — 3 starter prompts, custom skills/commands graduate from these sessions |
 | **4. Capture + prioritize bottlenecks** | Bottlenecks captured from the lake (not from interviews), ranked by impact × buildability × stakeholder-trust | [Part 1 §3](./case-study/part1-diagnose-and-prioritize.md) — `bottlenecks/` directory + Phase 0 data archaeology gate |
 | **5. Agentic dev to ship solutions** | Spec → research → test → ship the top-ranked bottleneck | **All of [Part 2](./case-study/part2-data-foundation.md)** (the substrate the ship needs) + **all of [Part 3](./case-study/part3-buying-signal-workflow.md)** (the actual ship — the signal workflow) |
@@ -117,7 +118,7 @@ Three things make Mento a fit for this shape, not just any GTM-engineer playbook
 
 ## On the walkthroughs folder
 
-[`walkthroughs/`](./walkthroughs/) contains three written guides — **a live representation of the 7-step OS, walked one step at a time on real Mento data.** The foundation stack (Airbyte → Supabase → Claude Code) is illustrative; swap your equivalents where they fit.
+[`walkthroughs/`](./walkthroughs/) contains three written guides — **a live representation of the 7-step OS, walked one step at a time on real Mento data.** Required foundation stack is just **Claude Code + GitHub**. Daily data lake (Airbyte → Supabase / BigQuery / your pick) is an optional level-up — illustrative, swap your equivalents where they fit.
 
 | # | Walkthrough | OS step | What it unlocks |
 |---|---|---|---|

@@ -1,10 +1,12 @@
-# Step 2 — Data + Ops Models + Playbooks Ingested Daily
+# Step 2 — Data + Ops Models + Playbooks Into the Repo
 
 > Foundation · Day 1–4
 
 ## What this step is
 
-Fill the repo's empty folders. **Airbyte → Supabase pulls everything Mento has, daily** — not just 12 won-deal transcripts. Snapshots of accounts, contacts, deals, activities; full Avoma transcript library; Slack threads on deal channels; the 200-account list; Apollo/Crunchbase/Sumble enrichment; L&D job-board feeds.
+**Get the stuff Mento already has into `mento-gtm/` so Claude can find it.** Board decks, sales playbooks, a 90-day snapshot of deals/accounts/contacts, meeting transcripts, the 200-account list. Drop them into `data/` as files — Claude reads CSVs, markdown, PDFs directly. Context is everything; perfect file systems matter less than just having the data *where Claude can find it.*
+
+**Step 2b (optional level-up):** once manual exports get old, graduate to a daily data lake. Airbyte over OAuth pulls HubSpot, Avoma, Slack, and any enrichment source into a destination of your choice — Supabase (cheap, fast), BigQuery (scales), or even flat-file dumps back into `data/`. Started a lot of clients on Supabase, will likely move to BigQuery as data grows.
 
 Then the **playbooks** — the rules-about-the-data — get written down as code in the repo: dedupe logic, enrichment runbooks, ICP scoring function, lifecycle state machine.
 
