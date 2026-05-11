@@ -98,7 +98,7 @@ Most GTM-engineer hires jump straight to "build the signal workflow." That's a m
 
 | Step | What it is | Why it's in this position |
 |---|---|---|
-| **1. Repo per client** | One source-of-truth folder per client. GitHub for version control, permissions, easy rollback. | The repo is the artifact. No repo = no place for the OS to live. Has to exist before anything ingests into it. |
+| **1. Stand up the GTM repo** | One source-of-truth folder for the org's GTM. GitHub for version control, permissions, easy rollback. | The repo is the artifact. No repo = no place for the OS to live. Has to exist before anything ingests into it. |
 | **2. Data + operating models + playbooks into the repo** | Board decks, sales playbooks, 90-day snapshot of deals/accounts/contacts, meeting transcripts. **2b (optional):** daily data lake via Airbyte (Supabase / BigQuery / your pick). | Context is everything. Perfect file systems matter less than just having it where Claude can find it. |
 | **3. Stakeholders into Claude Code, pointed at the repo** | Alex (then anyone) downloads the app, connects GitHub, runs first prompts. Self-serves huge value on data they already had. | If stakeholders never open it, the OS dies in week one. Adoption *precedes* capability. |
 | **4. Capture + prioritize bottlenecks** | Bottlenecks from data + rep + manager feedback. Systems touched, problem, how-measured, root cause, desired outcome. | You can't build the right thing first without ranking what to build. |

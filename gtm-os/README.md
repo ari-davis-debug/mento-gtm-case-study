@@ -29,7 +29,7 @@ Operate
 
 | # | Step | File | Take-home section it answers | Quickstart |
 |---|---|---|---|---|
-| 1 | Stand up the GTM repo | [step-1-repo-per-client.md](./step-1-repo-per-client.md) | [Part 1 §1](../case-study/part1-diagnose-and-prioritize.md) | [WT 1 — Installation + setup](../quickstart/1-installation-and-setup.md) |
+| 1 | Stand up the GTM repo | [step-1-stand-up-the-repo.md](./step-1-stand-up-the-repo.md) | [Part 1 §1](../case-study/part1-diagnose-and-prioritize.md) | [WT 1 — Installation + setup](../quickstart/1-installation-and-setup.md) |
 | 2 | Data + playbooks into the repo | [step-2-data-playbooks-ingested-daily.md](./step-2-data-playbooks-ingested-daily.md) | [Part 1 §1](../case-study/part1-diagnose-and-prioritize.md) + **all of [Part 2](../case-study/part2-data-foundation.md)** | [WT 1 — Installation + setup](../quickstart/1-installation-and-setup.md) |
 | 3 | Stakeholders into Claude Code | [step-3-stakeholders-in-claude-code.md](./step-3-stakeholders-in-claude-code.md) | [Part 1 §2](../case-study/part1-diagnose-and-prioritize.md) | [WT 2 — First prompts](../quickstart/2-first-prompts-in-claude-code.md) |
 | 4 | Capture + prioritize bottlenecks | [step-4-capture-prioritize-bottlenecks.md](./step-4-capture-prioritize-bottlenecks.md) | [Part 1 §3](../case-study/part1-diagnose-and-prioritize.md) | [WT 3 — Bottleneck capture](../quickstart/3-bottleneck-capture.md) |

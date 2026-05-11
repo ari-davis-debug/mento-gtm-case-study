@@ -27,7 +27,7 @@ mento-case-study/
 │   part3-buying-signal-workflow.md
 │
 └── gtm-os/          ← (3) "I want to see how I think about the shape"
-    step-1-repo-per-client.md
+    step-1-stand-up-the-repo.md
     step-2-data-playbooks-ingested-daily.md
     step-3-stakeholders-in-claude-code.md
     step-4-capture-prioritize-bottlenecks.md

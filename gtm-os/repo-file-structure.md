@@ -143,6 +143,6 @@ The CIA's [`CLAUDE.md`](../../CLAUDE.md) is the reference. `mento-gtm/CLAUDE.md`
 
 ## What's next
 
-- [Step 1 — Stand up the repo](./step-1-repo-per-client.md) — the empty tree, day one
+- [Step 1 — Stand up the repo](./step-1-stand-up-the-repo.md) — the empty tree, day one
 - [Step 2 — Data + playbooks into the repo](./step-2-data-playbooks-ingested-daily.md) — fill `foundation/` + `sql/`, stand up the optional lake
 - [Quickstart 1 — Installation and setup](../quickstart/1-installation-and-setup.md) — walk this live on your own machine
