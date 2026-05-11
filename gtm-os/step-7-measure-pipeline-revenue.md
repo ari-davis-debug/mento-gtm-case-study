@@ -4,7 +4,7 @@
 
 ## What this step is
 
-Closed-loop attribution. The OS earns its keep when **pipeline and revenue go up** — not when a script runs on a cron, not when a queue fills, not when a Slack card gets clicked. Cetner names this explicitly: *"you moved the constraint correctly when pipeline & revenue go up."*
+Closed-loop attribution. The OS earns its keep when **pipeline and revenue go up** — not when a script runs on a cron, not when a queue fills, not when a Slack card gets clicked. *You moved the constraint correctly when pipeline and revenue go up.* That's the only legitimate success metric for the whole pattern.
 
 ## Why this step matters
 

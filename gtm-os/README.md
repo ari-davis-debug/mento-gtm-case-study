@@ -8,7 +8,7 @@ The [`case-study/`](../case-study/) folder gives Mento direct answers to the thr
 
 The reason both exist: Mento's evaluator can read either path and get a complete picture. If they want the answers, they go to `case-study/`. If they want to see how I think about the system end-to-end, they walk the 7 steps here.
 
-## The 7-step shape (h/t Tomas Cetner)
+## The 7-step shape
 
 ```
 Foundation

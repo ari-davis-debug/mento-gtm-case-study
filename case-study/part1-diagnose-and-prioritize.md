@@ -1,7 +1,7 @@
 # Part 1 — Diagnose & Prioritize
 
 > Mento GTM Engineer Take-Home · 1-page brief
-> *Frame: this is Steps 1–4 of a 7-step GTM Operating System pattern (h/t Tomas Cetner). The repo described below is real — `mento-gtm/` is being built alongside this submission. The submission ships with a short video walkthrough series so Alex and the reps can see exactly how to set it up and use it on day 1.*
+> *Frame: this is Steps 1–4 of a 7-step GTM Operating System pattern. The repo described below is real — `mento-gtm/` is being built alongside this submission. The submission ships with a short video walkthrough series so Alex and the reps can see exactly how to set it up and use it on day 1.*
 
 ## The Slack message I got
 
@@ -21,7 +21,7 @@ So my job in week one isn't to clean HubSpot or ship an automation. **It's to st
 
 Detail on each below.
 
-### Q: First — what does "stand up the GTM OS" actually mean? (Day 1–4 → Steps 1 + 2)
+### Q: First — what does "stand up the GTM OS" actually mean? (Weeks 1–2 → Steps 1 + 2)
 
 **A:** Spin up `mento-gtm/` as the source-of-truth repo. **Airbyte → Supabase pulls everything Mento has, daily** — not just 12 won-deal transcripts, *everything*. Snapshots of accounts, contacts, deals, activities; full Avoma transcript library; Slack threads on deal channels; board decks; the 200-account list with attribution; Apollo/Crunchbase enrichment; L&D job-board feeds. Airbyte's OAuth-based connectors mean we don't need API keys floating around — Alex authorizes HubSpot/Avoma/Slack once via the standard OAuth dance, and the daily sync is live. A small ingest worker auto-front-matters each file (source, date, type, account, deal_id) and routes it into the repo tree:
 
@@ -50,7 +50,7 @@ mento-gtm/
 
 Output: `mento-gtm/` repo live, Airbyte daily sync running, every artifact above flowing in with front-matter.
 
-### Q: Second — how do you get stakeholders into Claude Code and pointed at the repo? (Day 4–7 → Step 3)
+### Q: Second — how do you get stakeholders into Claude Code and pointed at the repo? (Weeks 2–3 → Step 3)
 
 **A: Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, recorded as a reusable walkthrough video so the next stakeholder (or new hire) onboards themselves:
 
@@ -68,7 +68,7 @@ Keep it simple at this stage — **no custom commands or skills yet**, just raw 
 
 Output: Alex (and any other opted-in stakeholder) running prompts independently. Signal-trust list captured live in those sessions. Onboarding video shipped for repeatability. The first ~3 starter prompts that get reused enough get promoted into custom skills.
 
-### Q: Third — how do you capture and prioritize bottlenecks? (Day 7–10 → Step 4)
+### Q: Third — how do you capture and prioritize bottlenecks? (Weeks 3–4 → Step 4)
 
 **A:** Bottlenecks get captured **by looking at the data inside the repo** — not by running another round of stakeholder interviews. The work in Steps 1 and 2 already surfaced most of what we need; Step 3 is reading the lake and writing it down. `bottlenecks/` is a directory, not a single file — each bottleneck a node, schema'd the same way: *systems touched, problem, how measured, root cause hypothesis, desired outcome, priority score (impact × buildability × stakeholder-trust)*.
 
@@ -92,21 +92,39 @@ Ranked. **This is the gate** — Part 3's signal workflow only earns the right t
 
 Output: `bottlenecks/` ranked. The top item drives Part 3.
 
-**Why this order, why we stop at Step 4:** Steps 5–7 (ship, roll out, attribute) only work if 1–4 are real. Most GTM-engineering hires get pulled straight to "build the signal workflow" and skip the foundation — system pumps wrong leads at reps who don't trust it, dies in week 5. **Setting up the OS *is* the work of week one.** Part 2 starts Step 5 (data foundation as the buildable layer); Part 3 ships the top-ranked bottleneck inside it.
+**Why this order, why we stop at Step 4:** Steps 5–7 (ship, roll out, attribute) only work if 1–4 are real. Most GTM-engineering hires get pulled straight to "build the signal workflow" and skip the foundation — system pumps wrong leads at reps who don't trust it, dies in month two. **Setting up the OS *is* the work of the first month.** That's why the timeline above runs weeks 1–4, not days. The OS earns its keep by being trustworthy before it's productive. Part 2 starts Step 5 (data foundation as the buildable layer); Part 3 ships the top-ranked bottleneck inside it — both happen in weeks 4–8 once the foundation is real.
 
-## Q: What information would you need to gather in week one?
+## Q: What information would you need to gather in the first weeks?
 
-**A:** Seven inputs, all already exist somewhere at Mento — I'm not asking anyone to *produce* anything new, just give me access. The table below shows what, where, and what unlocking each one buys us.
+**A:** Every GTM data source Mento touches, plus the context that explains *how* the team works today. **Rule: if Airbyte has a connector for it, it gets ingested.** I'm not asking anyone to *produce* anything new — just give me access. The table below covers the full stack.
 
 | Need | Where it lives | Maps to step | What it unlocks |
 |---|---|---|---|
-| HubSpot full export + property audit | HubSpot | Step 2 ingest | Airbyte OAuth source #1 |
-| Avoma full library + API access | Avoma | Step 2 ingest | All-call transcript ingestion |
-| Slack workspace access (deal channels) | Slack | Step 2 ingest | Captures the warm-intro mechanic that's closing deals today |
+| **Core CRM & comms** | | | |
+| HubSpot full export + property audit | HubSpot | Step 2 ingest | Airbyte OAuth source #1 — accounts, contacts, deals, activities, properties, lifecycle stages |
+| Avoma full library + API access | Avoma | Step 2 ingest | All-call transcript ingestion — the largest single source of buyer-voice data |
+| Slack workspace access (deal channels, signals, customer threads) | Slack | Step 2 ingest | Captures the warm-intro mechanic that's closing deals today; flags rep coordination breakdowns |
+| Email mailboxes (Alex + reps) | Gmail / O365 | Step 2 ingest | Outbound + inbound thread context; voice-of-rep samples for the drafter in Part 3 |
+| Calendar | Google / O365 | Step 2 ingest | Meeting cadence, no-shows, account-touch frequency |
+| **Outbound / pipeline gen stack** | | | |
+| Sequencer (if one is in use) | SmartLead / Apollo / Outreach / Salesloft | Step 2 ingest | Step + reply data, sequence performance, bounce rates |
+| Enrichment + signal tools | Clay, Crunchbase, Sumble, BlitzAPI, etc. | Step 2 ingest | What's already paid for; what we can reuse vs. need to add |
 | 200-account list with attribution | Spreadsheet/HubSpot | Step 2 ingest | Reveals current ICP guess; reconciles against win patterns |
-| Tool subscriptions + seat counts (Clay, Apollo, sequencer) | Alex / billing | Step 2 ingest | Defines budget + reuse for Step 5 |
-| Reps' signal-trust list | Live in Step 3 onboarding | Step 3 | Gate for what's allowed to ship in Part 3 |
-| Marketing/outbound's current motion | Alex | Step 4 capture | Determines whether we're displacing or augmenting |
+| **Marketing & web** | | | |
+| Marketing automation (if any) | HubSpot Marketing / Mailchimp / Customer.io | Step 2 ingest | Lifecycle email touches, form fills, MQL definitions |
+| Web analytics + page-level intent | GA4 / Plausible / Segment | Step 2 ingest | High-intent page hits per account (pricing, demo, integrations) |
+| Ad platforms (if running paid) | LinkedIn Ads / Google / Meta | Step 2 ingest | Cost-per-meeting truth check; retargeting audiences |
+| **Customer & post-sale** | | | |
+| Customer success / coaching delivery platform | Mento's own product DB | Step 2 ingest | Usage signals, expansion triggers, churn-risk patterns (lookalikes feed ICP) |
+| Support tickets / NPS | Intercom / Zendesk | Step 2 ingest | Customer-voice data for messaging; objection patterns |
+| **Org & context** | | | |
+| Tool subscriptions + seat counts | Alex / billing | Step 2 ingest | Defines budget + reuse for Step 5; flags overlap |
+| Org chart + comp plan structure | Alex | Step 3 onboarding | How reps are measured today; what "pipeline" means to comp |
+| Marketing/outbound's current motion + last 6 months of campaigns | Alex / Slack history | Step 4 capture | Determines whether we're displacing or augmenting |
+| Reps' signal-trust list (warm-intro patterns, what they trust today) | Live in Step 3 onboarding | Step 3 | Gate for what's allowed to ship in Part 3 |
+| Board decks + last 4 QBR slides | Alex / Drive | Step 2 ingest | Tells me what the company believes about itself — useful to reconcile against the lake |
+
+**Why "everything Airbyte can pull"**: the OS is only as good as the substrate. If we miss the marketing automation, we can't tell whether a hand-raise was inbound or warmed by a campaign. If we miss the product DB, we can't build the lookalike-on-active-customers signal that's probably Mento's highest-conversion play. Cost is negligible (Airbyte's open-source connectors + Supabase). The constraint is access, not capacity.
 
 ## Q: What's the biggest risk to "something working in 60 days"?
 
@@ -118,7 +136,7 @@ Two compounding failure modes, both about humans:
 2. **Signal distrust** — even if the OS is alive, a two-rep team that has closed deals on instinct for two years will reject any system producing leads they don't recognize as "ours."
 
 **Mitigation, embedded in the plan:**
-- The video walkthroughs lower the terminal learning curve — that's the actual unlock per Cetner's adoption mechanic.
+- The video walkthroughs lower the terminal learning curve — that's the actual unlock.
 - Step 2 (1:1 onboarding) gets each stakeholder running prompts against *their* data in their first session.
 - Step 3 (bottleneck capture) makes reps co-authors of what gets built, not recipients.
 - First ship in Part 3 is a bottleneck *they* ranked highest.

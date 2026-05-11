@@ -9,7 +9,7 @@ Mento's brief asks for three things: diagnose the problem, design a data foundat
 
 So my submission doesn't propose an automation. **It proposes a GTM Operating System** — a versioned, queryable, multi-stakeholder repo that ingests everything Mento already has and lets the team work *with* their data instead of around it. The signal workflow Mento asked for in Part 3 is one component inside it. Parts 1 and 2 are the foundation that makes Part 3 worth shipping.
 
-The shape comes from a 7-step pattern Tomas Cetner published in May 2026 on building GTM operating systems for client teams in Claude Code. I'd already been building a version of this for a year (my own knowledge graph, the CIA — 350+ nodes, typed wiki-links, daily sync, agentic build discipline). His post named the structure I'd been working in. I'm using that structure here because it's the right shape for Mento, and because being explicit about the shape is how Mento evaluates whether I'm pattern-matching or pattern-applying.
+The shape is a 7-step pattern for building GTM operating systems for client teams in Claude Code. I've been building a version of this for a year (my own knowledge graph, the CIA — 350+ nodes, typed wiki-links, daily sync, agentic build discipline). I'm using that structure here because it's the right shape for Mento, and because being explicit about the shape is how Mento evaluates whether I'm pattern-matching or pattern-applying.
 
 ## How to read this repo
 
@@ -42,7 +42,7 @@ mento-case-study/
 - *"I just want the take-home answers"* → start in [`case-study/`](./case-study/)
 - *"I want to see how you actually think about building this"* → start in [`gtm-os/`](./gtm-os/), each step links back to the take-home answer that lives inside it
 
-## The 7-step GTM OS shape (h/t Tomas Cetner)
+## The 7-step GTM OS shape
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -111,7 +111,6 @@ The video walks the **7-step OS, with each step showing where the take-home answ
 ## What I'm not claiming
 
 - I haven't seen Mento's actual HubSpot, Avoma, or Slack data. The bottleneck example in Part 1 is illustrative; the real top-1 surfaces from the work in Step 4.
-- The 7-step shape is Cetner's, not mine. My contribution is applying it to Mento and naming what's missing.
 - Steps 6 and 7 are sketched, not built. They depend on real reps, real deals, and real revenue lift — which can't be faked in a 2–3 hour case study.
 
 ## Read order

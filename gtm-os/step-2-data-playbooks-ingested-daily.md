@@ -10,7 +10,7 @@ Then the **playbooks** — the rules-about-the-data — get written down as code
 
 ## Why this step matters
 
-Cetner's vision distinguishes **data** (the raw lake) from **playbooks** (the rules running on top of it). Most companies have one or the other. Mento has neither in a usable place — HubSpot is the rep UI, not the system of record for derived data. This step builds both.
+The shape distinguishes **data** (the raw lake) from **playbooks** (the rules running on top of it). Most companies have one or the other. Mento has neither in a usable place — HubSpot is the rep UI, not the system of record for derived data. This step builds both.
 
 **The lake** = where Claude Code can find context when a stakeholder asks *"why did we close this account?"*
 **The playbooks** = how Mento decides what's an ICP, what's a duplicate, what's an SQL, what's a churn risk. Written down, versioned, reviewable.

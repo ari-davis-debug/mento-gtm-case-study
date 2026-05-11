@@ -4,14 +4,14 @@
 
 ## How the scenario maps to the macro vision
 
-Mento's scenario — *messy HubSpot, 5K contacts, missing firmographics, no scoring, no lifecycle rules, 200 dormant target accounts, Avoma transcripts, known buying signals* — reads like a build problem. **It isn't.** In Cetner's vision, it's a **substrate problem**: the data and the rules about the data aren't in a place we can work on them. Until that's fixed, every signal workflow (Part 3) lands on sand.
+Mento's scenario — *messy HubSpot, 5K contacts, missing firmographics, no scoring, no lifecycle rules, 200 dormant target accounts, Avoma transcripts, known buying signals* — reads like a build problem. **It isn't.** It's a **substrate problem**: the data and the rules about the data aren't in a place we can work on them. Until that's fixed, every signal workflow (Part 3) lands on sand.
 
 So Part 2 is the substrate. In plain English:
 
-- **The lake** — a Supabase mirror of HubSpot + Avoma + Slack + enrichment, refreshed daily by Airbyte — is where Cetner says all the raw context belongs. *"Context is everything; perfect file systems don't matter as much as having it where Claude can find it."*
-- **The rules** — dedupe logic, ICP scoring formula, lifecycle state machine — are what Cetner calls *ops models and playbooks*. Written-down answers to "how do we handle X," living in the repo as code, applied consistently.
-- **The agents** that show up here (sanity-check before merges, score-explanation for reps, churn-signal surfacing) are early versions of Cetner's *agentic dev process*. They only make sense because the lake and the rules exist.
-- **The closed-loop tuning** — wins and losses re-fit the scoring weights monthly — is the same closed-loop measurement Cetner makes the success metric of the whole pattern: *"you moved the constraint correctly when pipeline & revenue go up."*
+- **The lake** — a Supabase mirror of HubSpot + Avoma + Slack + enrichment, refreshed daily by Airbyte — is where all the raw context belongs. Context is everything; perfect file systems matter less than having the data where Claude can find it.
+- **The rules** — dedupe logic, ICP scoring formula, lifecycle state machine — are the *ops models and playbooks*. Written-down answers to "how do we handle X," living in the repo as code, applied consistently.
+- **The agents** that show up here (sanity-check before merges, score-explanation for reps, churn-signal surfacing) are the *agentic dev process* in early form. They only make sense because the lake and the rules exist.
+- **The closed-loop tuning** — wins and losses re-fit the scoring weights monthly — is the success metric of the whole pattern: *you moved the constraint correctly when pipeline + revenue go up.*
 
 ### How the brief flows through that, line by line
 
@@ -20,10 +20,10 @@ So Part 2 is the substrate. In plain English:
 | *"HubSpot is a mess"* — 5K contacts, dupes, 40% missing firmographics | The **lake** mirrors HubSpot so we fix it without breaking the rep UI. Dedupe + enrichment **rules** sit in the repo as ops models. |
 | *"No consistent lifecycle stage logic, no ICP scoring"* | These ARE the missing **playbooks**. Written here as a state machine (Q4) and a SQL scoring function (Q3). |
 | *"~200 target accounts we've been meaning to activate"* | They sit in the **lake**, get ranked by the scoring **playbook**, and become the input to Part 3's signal workflow. |
-| *"Call recordings in Avoma"* | Into the **lake** (Cetner names transcripts as ingestion content explicitly). Used to validate scoring weights against what reps actually heard on winning calls. |
+| *"Call recordings in Avoma"* | Into the **lake** — transcripts are first-class ingestion content. Used to validate scoring weights against what reps actually heard on winning calls. |
 | *"Coaching demand spikes when companies hit certain inflection points — funding, hiring, CHRO"* | Signals become both **score inputs here** (Q3 Tier 2) and **triggers in Part 3**. Same data, two consumers. |
 
-**The honest read of the brief:** most candidates will skip straight to the signal workflow — that's the flashy Part 3 piece. Cetner's whole point is that skipping the substrate creates a *"house of cards."* That's why Part 2 is heavier than Part 3 in this submission on purpose.
+**The honest read of the brief:** most candidates will skip straight to the signal workflow — that's the flashy Part 3 piece. Skipping the substrate creates a house of cards. That's why Part 2 is heavier than Part 3 in this submission on purpose.
 
 ### One-line summary of where each Q lives
 
@@ -47,7 +47,7 @@ So Part 2 is the substrate. In plain English:
 
 - HubSpot is the rep UI and stays that way. Reps never have to learn a new CRM.
 - No objection to standing up Deepline + BlitzAPI + Crunchbase API at the budgets noted below.
-- The win-audit from Part 1's Step 4 will produce real weight numbers for Q3 within the first 2 weeks. Until then, the v0 weights below run on the brief's stated ICP plus what's visible on mento.co.
+- The win-audit from Part 1's Step 4 produces the archetype cohorts + Avoma-grounded discriminators for Q3 within the first 2–4 weeks. The weights below are starting priors from that audit; they get re-fit monthly against new closed deals.
 - Mento can run a small VPS (DigitalOcean / Fly.io tier) for the orchestrator + the sanity-check agent. Trigger.dev is the default; n8n is an alternative if a non-coder needs to edit visually.
 
 ## A note on SQL — what it is, what it isn't, and what it does in this doc
@@ -95,16 +95,18 @@ The shape is always: **reads from `[table]` → does `[the math / organization]`
 
 ### Q: What's the merge logic — which field from which record wins?
 
-**A:** Explicit field precedence per column — the part most teams skip. Without this rule the merged record is garbage:
+**A:** Explicit field precedence per column — the part most teams skip. Without this rule the merged record is garbage. Read each row as *"for this field, the value with the highest precedence wins; everything else loses."*
 
-| Field | Wins | Loses |
-|---|---|---|
-| Email | Most-recent verified > manual entry > scraped |
-| Title / role | Enrichment timestamp < 90d > self-reported > inferred |
-| Company | HubSpot deal-association > enrichment > form submission |
-| Lifecycle stage | **Never downgrades on merge** — highest stage wins |
-| Activity history | Union (keep all rows, dedupe by timestamp) |
-| Notes | Concatenate with attribution |
+| Field | Precedence (highest → lowest) |
+|---|---|
+| Email | Most-recent verified → manual entry → scraped |
+| Title / role | Enrichment timestamp < 90d → self-reported → inferred |
+| Company | HubSpot deal-association → enrichment → form submission |
+| Lifecycle stage | **Never downgrades on merge** — highest stage wins, period |
+| Activity history | Union — keep all rows, dedupe by timestamp |
+| Notes | Concatenate with attribution (no overwrites) |
+| Phone | Verified mobile → verified direct → verified switchboard → scraped |
+| LinkedIn URL | Most-recently-verified → first-discovered |
 
 ### Q: How does dedupe actually run end-to-end (concretely)?
 
@@ -188,9 +190,9 @@ HubSpot is the rep UI. Supabase is the system of record for derived data. **Math
 | **Deepline** | Waterfall orchestrator (CLI / API across 31+ providers, writes directly to Supabase, runs in cloud) | "Clay in the terminal" — writes directly to *our* Supabase, no export fees, lives next to the repo. Pairs cleanly with the OS shape from Part 1. Confirmed it can deploy to cloud and run automatically. |
 | **BlitzAPI** | **Primary contact-finder + email/phone enrichment** (called inside the Deepline waterfall) | Has its own ICP-driven contact-discovery waterfall — *better than Apollo for the 500–5K tech segment Mento sells into*. Flat $499/mo email + $599/mo phone, unlimited. Predictable cost beats credit-burn pricing at this contact volume. Replaces Apollo entirely; no need for a second contact-discovery tool. |
 | **Crunchbase API** | Funding events | Webhook gives same-day signals on Series B/C/D announcements — the ICP trigger that matters most for Mento. |
-| **LinkedIn Sales Nav** (manual) | CHRO / VP People hires, layer-3 director changes | No clean API; reps verify in-platform until budget for BuiltWith / TheirStack opens. |
-| ~~ZoomInfo~~ | — | Skip at this scale. Cost-to-marginal-value is wrong below 50 reps. |
-| ~~Apollo~~ | — | Replaced by BlitzAPI's contact-finding waterfall. One tool, predictable pricing, better fit for the segment. |
+| **Sumble API** | **People-change feed** — CHRO / VP People hires, layer-3 director hires + departures, headcount deltas | API-driven, no humans-in-the-loop. Same signal Sales Nav surfaces, except queryable, scheduled, and writeable directly to Supabase. **This is the signal that fires the new-CHRO-mandate and manager-density archetypes** — the hire data is upstream of everything in Part 3. |
+| **BuiltWith / TheirStack** | Tech-stack signals (HRIS, LMS, perks platforms in use) | Tells us when an account installs / uninstalls an L&D platform — strongest negative signal we have. Cheap, API-first, no seat licensing. |
+| **Crustdata** (optional, month 3+) | Org-level firmographic + headcount-by-function trends | Adds team-shape granularity (eng vs. ops vs. sales headcount mix). Defer until the archetype rubrics are stable — only ship if a specific archetype needs it. |
 
 ### Q: What actually runs the enrichment jobs on a schedule?
 
@@ -213,7 +215,7 @@ HubSpot is the rep UI. Supabase is the system of record for derived data. **Math
 
 ## Q3: How would you define ICP fit in data terms?
 
-**A:** Outcome-backward, in two phases. **V0 (day one)** = one SQL formula with two tiers — firmographic filter + bespoke Mento boost (lookalike, Glassdoor, exec posts), threshold ≥ 70 routes to a rep. **V1 (month 6)** = per-archetype scoring (Hypergrowth-Promotion-Lag, New-CHRO-Mandate, Manager-Density-Break), each archetype gets its own SQL function, highest match wins. V1 only ships if it beats V0 on a held-out 20% of won deals. Detail below.
+**A:** Outcome-backward, from day one. Reverse-engineer the ICP from Mento's actual won-deal cohort — Avoma transcripts + public footprint at T-180d. Cluster the wins into 2–3 archetypes (Hypergrowth-Promotion-Lag, New-CHRO-Mandate, Manager-Density-Break). Each archetype gets its own SQL scoring function; an account is scored against all of them and the highest match wins routing. Weights are tuned monthly against a held-out 20% of closed deals so the scoring stays honest. Detail below.
 
 ### Q: What does "outcome-backward" actually mean?
 
@@ -233,76 +235,78 @@ Cluster those *prior states* into 2–3 patterns. **Those patterns are the real 
 
 The Avoma calls feed this too: what reps heard on winning discovery calls (*"our directors are drowning,"* *"the new CHRO wants something running by Q3"*) becomes the qualitative validation for the quantitative signals we reconstruct from public data.
 
-### Q: Why two versions of the ICP (V0 and V1), sequenced?
+### Q: Why archetypes, not one ICP filter?
 
-**A: Ship V0 today, replace it with V1 after the win-audit.**
+**A: Mento doesn't have one ICP — it has 2–3 archetypes, and they don't score the same way.**
 
-(V0 / V1 = *version 0 / version 1*. Same scoring function, same SQL, just upgraded once we have real won-deal data to learn from. We ship in two phases because Mento doesn't yet have the volume to do the better thing on day one.)
+A flat firmographic filter ("headcount 500–5K, software, recent funding") tells a rep *who's in the room*. It doesn't tell them *who's about to buy*. The win-audit from Part 1 Step 4 (~30 wins + ~60 losses, all surfaced from the lake) is what makes this real on day one — we cluster the wins by what was publicly true 6–18 months before close, and let the clusters define the rubrics. Mento's likely archetypes (validated against the audit, killed if the data doesn't support):
 
-- **V0 — Version 0, day one — the firmographic filter.** One SQL formula. Run nightly in Supabase. Checks the obvious boxes: headcount 500–5K, fast-growing tech, recent funding, growing director layer, open L&D role. Admittedly an Apollo-style filter. We ship it because *a filter that's 70% right beats no scoring at all in week one.* **It's the floor, not the answer.**
-- **V1 — Version 1, month 6 — outcome-backward archetypes.** Same Supabase, but now *multiple* SQL functions — one per archetype. Once the win-audit produces real cohorts (~30 wins + ~60 losses, realistic by month 6), cluster the wins into 2–3 **archetypes**. Each archetype gets its own scoring rubric. An account is scored against all three and the **highest match wins**. Mento's likely candidates:
-  - **Hypergrowth-promotion-lag** (Vercel-shaped) — headcount doubled, director layer flat, manager span > 8.
-  - **New-CHRO-mandate** (post-Series-C-shaped) — CHRO/VP People hired in last 90d *and* L&D req opened within 60d after.
-  - **Manager-density-break** (Brex '23-shaped) — 20%+ headcount growth + Glassdoor "career growth" sub-3.0 + open L&D role.
-- **The handoff rule — 20% holdout.** When we build V1, we hold out 20% of the won/lost deals from training. The held-out set must show *measurable lift over V0* before V1 ships. This is what kills the *"company-name-starts-with-vowel"* failure mode (over-fitting to wins you already have so the model looks great until it meets new accounts). The day V1 beats V0 on held-out wins, V0 dies and V1 takes over.
+- **Hypergrowth-promotion-lag** (Vercel-shaped) — headcount doubled, director layer flat, manager span > 8.
+- **New-CHRO-mandate** (post-Series-C-shaped) — CHRO/VP People hired in last 90d *and* L&D req opened within 60d after.
+- **Manager-density-break** (Brex '23-shaped) — 20%+ headcount growth + Glassdoor "career growth" sub-3.0 + open L&D role.
 
-**The short version:** V0 = one rough formula we ship Monday. V1 = three sharper formulas we ship after we've seen enough closed deals to know what actually correlates with winning. Same plumbing, smarter rules.
+**An account is scored against all three. Highest match wins routing.** Same plumbing for each archetype; different weights, different discriminators. The Avoma transcripts ground the qualitative signals — what reps actually heard on winning discovery calls (*"our directors are drowning,"* *"the new CHRO wants something running by Q3"*) — against the quantitative ones we reconstruct from public data.
 
-### Q: What does the V0 scoring SQL actually look like?
+### Q: How do we avoid over-fitting to wins we already have?
 
-**A:** Two tiers, one number, deterministic.
+**A: 20% holdout, monthly retrain.**
 
-V0 has two parts that both run as SQL in Supabase. Tier 1 = standard firmographic signals from the brief. Tier 2 = bespoke Mento signals (lookalikes, Glassdoor, exec posts) — these *contribute points*, they don't just live as agent flags. Total `icp_score = tier_1 + tier_2`. Threshold ≥ 70 routes to a rep.
+Hold out 20% of the won/lost cohort from training. Score the held-out set. If the rubric doesn't show measurable lift over a flat firmographic filter on the held-out 20%, the archetype isn't real yet — it's a coincidence of small numbers. Don't ship it. This kills the *"company-name-starts-with-vowel"* failure mode where a model looks great on training data and falls apart on new accounts.
 
-> *Read this SQL as V0 scaffolding, not the destination.* It is the explicit filter — what we run on day one. V1 replaces it with per-archetype discriminators tuned against held-out wins.
+Once an archetype passes the held-out gate, it ships — and its weights get re-fit monthly against the growing cohort (logistic regression in Supabase). The function stays SQL, the weights become data-driven instead of vibes-driven.
+
+### Q: What does the scoring SQL actually look like?
+
+**A:** Per-archetype SQL functions in Supabase. Below is one — **New-CHRO-Mandate** — written as a plain-English `if true, +N points` rubric. Same shape for the other two archetypes; only the discriminators and weights differ.
+
+> *Read the weights as starting priors from the win-audit, not as fixed numbers.* The monthly retrain re-fits them against actual closed deals.
 
 ```sql
--- runs nightly across the lake; result lands as `icp_score` on each account
+-- runs nightly; one of three archetype functions. Result lands as
+-- `archetype_scores.new_chro_mandate` on each account.
+-- Final routing uses the MAX of all archetype scores.
 
--- ───── Tier 1 — firmographic (standard signals from the brief) ─────
-icp_score_firmographic =
-    CASE WHEN headcount BETWEEN 500 AND 5000 THEN 25 ELSE 0 END
-  + CASE WHEN industry IN ('software','fintech','infra','security','dev-tools') THEN 15 ELSE 0 END
+archetype_score_new_chro_mandate =
+  -- ───── Gating signals (must-haves for this archetype) ─────
+    CASE WHEN chro_or_vp_people_hired_last_90d THEN 40 ELSE 0 END
+  + CASE WHEN open_l_and_d_roles_opened_within_60d_of_chro_hire > 0 THEN 30 ELSE 0 END
+
+  -- ───── Firmographic fit (the room) ─────
+  + CASE WHEN headcount BETWEEN 500 AND 5000 THEN 15 ELSE 0 END
+  + CASE WHEN industry IN ('software','fintech','infra','security','dev-tools') THEN 10 ELSE 0 END
   + CASE WHEN last_funding_round IN ('B','C','D')
-         AND last_funding_date > NOW() - INTERVAL '180 days' THEN 30 ELSE 0 END
-  + CASE WHEN headcount_growth_180d_pct >= 20 THEN 20 ELSE 0 END
-  + CASE WHEN chro_or_vp_people_or_l_and_d_hired_last_90d THEN 40 ELSE 0 END
-  + CASE WHEN open_l_and_d_roles > 0 THEN 20 ELSE 0 END
-  + CASE WHEN new_director_layer_last_90d THEN 15 ELSE 0 END;     -- manager-density signal
+         AND last_funding_date > NOW() - INTERVAL '180 days' THEN 20 ELSE 0 END
 
--- ───── Tier 2 — bespoke Mento signal boost (free / public sources) ─────
-icp_score_boost =
-    CASE WHEN lookalike_score_to_named_customers >= 0.7 THEN 10 ELSE 0 END
-  + CASE WHEN glassdoor_career_growth <= 3.0
-         AND headcount_growth_180d_pct >= 20 THEN 8 ELSE 0 END
-  + CASE WHEN exec_post_about_manager_dev_last_30d THEN 5 ELSE 0 END
-  + CASE WHEN portfolio_in IN ('YC','a16z','Tiger')
-         AND last_funding_date > NOW() - INTERVAL '180 days' THEN 10 ELSE 0 END
-  + CASE WHEN conference_attendee_last_12mo THEN 5 ELSE 0 END;
+  -- ───── Mandate-strength signals (bespoke, from the win-audit) ─────
+  + CASE WHEN lookalike_score_to_named_customers >= 0.7 THEN 10 ELSE 0 END
+  + CASE WHEN exec_post_about_manager_dev_last_30d THEN 8 ELSE 0 END
+  + CASE WHEN glassdoor_career_growth <= 3.0 THEN 5 ELSE 0 END
+  + CASE WHEN avoma_topic_match_new_chro_mandate >= 0.6 THEN 12 ELSE 0 END;
+  -- ^ the Avoma signal: prior won deals with this archetype tagged
+  --   the same topics on discovery; new accounts get scored against that vocabulary
 
--- ───── Total ─────
-icp_score = icp_score_firmographic + icp_score_boost;
--- threshold: >= 70 = ICP, route to rep; 40-69 = nurture; <40 = drop
+-- threshold: >= 70 on ANY archetype = route to rep; 40-69 = nurture; <40 = drop
 ```
 
-### Q: What does that SQL actually say, in plain English?
+### Q: What does that SQL say, in plain English?
 
-**A:** Read it as a list of *"if this is true, add N points"* checks.
+**A:** A list of *"if this is true, add N points"* checks — same shape for each archetype, different signals.
 
-| Check | Points | Why this weight |
+| Check (New-CHRO-Mandate) | Points | Why this weight |
 |---|---|---|
-| Headcount between 500 and 5,000 | **+25** | Mento's stated sweet spot. The brief's first sentence. |
-| Industry is software / fintech / infra / security / dev-tools | **+15** | Mento's named customers (Brex, Vercel, Anthropic) all live here. |
-| Just raised Series B / C / D in last 180 days | **+30** | Biggest single trigger — fresh money = new headcount = new manager problems |
-| Headcount grew ≥ 20% in the last 6 months | **+20** | Growth that outpaces leadership development = the wedge |
-| CHRO / VP People / L&D head hired in the last 90 days | **+40** | The most predictive single signal — new exec = new mandate to spend |
-| Has open "L&D" / "Leadership Development" job postings | **+20** | They've already admitted they need help — in public |
-| Layer-3 director count grew in the last 90 days | **+15** | Manager-density signal — they're stretching their org chart |
-| **+ Tier 2 boost** (lookalike, Glassdoor, exec posts, portfolio, conferences) | +0 to +38 | Bespoke Mento signals, see table below |
+| **CHRO / VP People hired in last 90d** | **+40** | The single most predictive signal from the win-audit. New exec = new mandate to spend. |
+| **L&D role opened within 60d of CHRO hire** | **+30** | The follow-through that confirms the mandate is real, not symbolic. |
+| Headcount between 500 and 5,000 | +15 | Mento's sweet spot — but secondary to the archetype-specific signals. |
+| Industry is software / fintech / infra / security / dev-tools | +10 | Mento's named customers all live here. |
+| Series B / C / D raised in last 180 days | +20 | Capital is the budget enabler — the wedge between mandate and signing. |
+| Lookalike score ≥ 0.7 to a Mento customer | +10 | Shape match against named customers (Brex, Vercel, Anthropic, etc.). |
+| Exec posted about manager development in last 30 days | +8 | Public commentary signals priority. |
+| Glassdoor "career growth" ≤ 3.0 | +5 | The underlying pain that makes Mento's offer land. |
+| **Avoma topic match ≥ 0.6 to past wins with this archetype** | **+12** | The qualitative ground-truth signal — same language reps heard on past CHRO-mandate wins. |
 
-Total can go from 0 to ~200. **≥ 70 = route to a rep**, 40–69 = nurture, < 40 = drop.
+Total can run 0 to ~150 per archetype. **An account's routable score is `MAX(score across all 3 archetypes)`.** ≥ 70 = route to a rep, 40–69 = nurture, < 40 = drop.
 
-**Why two tiers, not one big formula:** keeps the bespoke Mento signals visible. When a stakeholder asks *"this account scored 78 — what got it there?"* the answer is `Tier 1 = 65 (Series B + headcount growth + 1 open L&D role) + Tier 2 = 13 (Vercel-shaped lookalike + Glassdoor signal)`. Transparent, audited, tunable.
+**Why per-archetype, not one big formula:** the new-CHRO mandate doesn't score the same way as the hypergrowth-promotion-lag pattern. A CHRO hire in a flat-headcount account is real signal for the first, noise for the second. Folding them into a single score throws away discriminators. Three functions = three lenses; the highest match decides routing.
 
 **Why deterministic, not agentic:** the rep *must* be able to ask "why did this account score 85?" and see the contributing fields. Black-box LLM scoring destroys trust the moment a rep disagrees with a result they can't audit. Same logic as why we don't auto-send: transparency is a feature.
 
@@ -313,32 +317,36 @@ Total can go from 0 to ~200. **≥ 70 = route to a rep**, 40–69 = nurture, < 4
 | Signal | Source | Field name in Supabase |
 |---|---|---|
 | Lookalike to named Mento customers (Dropbox / Brex / Vercel / Anthropic / SoFi / DoorDash / Gusto / Intercom) | Cohort similarity (firmographics + tech stack) computed in Supabase against named-customer feature vectors | `lookalike_score_to_named_customers` |
+| Avoma topic match to past wins of this archetype | Embedding similarity on discovery-call transcripts in Supabase pgvector — accounts get scored against the language patterns of past CHRO-mandate / promotion-lag / manager-density wins | `avoma_topic_match_<archetype>` |
 | Glassdoor "career growth" rating | Free public scrape | `glassdoor_career_growth` |
-| New layer-3 director hires (manager density) | LinkedIn Sales Nav delta tracking | `new_director_layer_last_90d` |
+| New layer-3 director hires + departures (manager density) | **Sumble API** — people-change feed, queried nightly | `new_director_layer_last_90d` |
+| CHRO / VP People hire in last 90 days | **Sumble API** — same feed, role-filtered | `chro_or_vp_people_hired_last_90d` |
 | Exec posting about manager development on LinkedIn | LinkedIn org content scrape (last 30 days) | `exec_post_about_manager_dev_last_30d` |
 | YC / a16z / Tiger portfolio company with recent funding | Crunchbase Pro filters | `portfolio_in`, `last_funding_date` |
+| L&D / leadership-dev role open + opened-within-60d-of-CHRO-hire flag | Job-board feeds (Greenhouse / Lever / careers-page scrape) | `open_l_and_d_roles`, `open_l_and_d_roles_opened_within_60d_of_chro_hire` |
+| Ex-customer alumni placed at new account | BlitzAPI / LinkedIn delta on prior Mento-customer employees who change companies | `ex_customer_alumni_placement` |
+| Triple-event correlation (funding + headcount + exec-hire within 90d) | Computed in Supabase against the three feeds above | `funding_within_90d`, `headcount_growth_within_90d`, `exec_hire_within_90d` |
 | Conference attendee (HR Tech, ATD, LearningSpark) | Public attendee lists, last 12 months | `conference_attendee_last_12mo` |
 
 ### Q: Where does the agent layer sit — does it add points to the score?
 
 **A: No — explanation only, not point-adding.** The math is SQL. The agent does two things SQL can't:
 
-1. **Plain-English score explanation** — when a rep opens an account, an agent reads the contributing fields and writes a 1-paragraph explainer: *"Scored 78. Driving factors: Series B 6 weeks ago (+30), L&D role open (+20), CHRO hired in March (+40 *not* triggered — hire was 110 days ago), Vercel-shaped fintech (+10 lookalike), Glassdoor 2.8 + 30% headcount growth (+8). One miss: no exec posts about manager dev in last 30d."*
-2. **Edge-case escalation** — surfaces accounts scoring 45–69 with strong qualitative signals — *"this account scores 52 but their VP of Eng just posted about manager-development on LinkedIn this week"* — into a separate rep queue. Pattern recognition is what agents are good at; scoring math isn't.
+1. **Plain-English score explanation** — when a rep opens an account, an agent reads the winning archetype's contributing fields and writes a 1-paragraph explainer: *"Scored 87 on New-CHRO-Mandate. Driving factors: Marisol Hwang hired as CHRO 38 days ago (+40), L&D req opened 22 days after that (+30), Series C two months ago (+20), Avoma topic match 0.71 to past wins (+12). The other two archetypes scored 41 and 33 — CHRO-mandate is the right lens."*
+2. **Edge-case escalation** — surfaces accounts scoring 45–69 on any archetype with strong qualitative signals — *"this account scores 52 on Manager-Density-Break but their VP of Eng just posted about manager-development on LinkedIn this week"* — into a separate rep queue. Pattern recognition is what agents are good at; scoring math isn't.
 
-### Q: How does V0 turn into V1 over time?
+### Q: How does scoring stay honest over time?
 
-**A:** Outcome-backward, with a 20% holdout.
+**A:** Monthly retrain against new closed deals, with a permanent 20% holdout.
 
-Every time a deal closes-won or closes-lost, the row goes into a `deal_outcomes` table with the full lake snapshot at *T-180d, T-90d, T-30d, T=close*. Once we have ~30 wins + ~60 losses (realistic by month 6 given Mento's deal velocity):
+Every time a deal closes-won or closes-lost, the row goes into a `deal_outcomes` table with the full lake snapshot at *T-180d, T-90d, T-30d, T=close*. The closed-loop runs monthly:
 
-1. **Reconstruct ground truth.** For each won account, what was true in their *public* data 6–18 months before close? Funding state, headcount delta, exec turnover, careers-page churn, Glassdoor inflection, exec posts. Distrust the CRM labels — Phase 0 of the win-audit is *data archaeology*, not model fitting. (CRM says "inbound demo request"; the lake often shows a CHRO hire 45 days prior. The CHRO hire is the actual signal.)
-2. **Cluster the wins into archetypes.** Not one ICP — 2 or 3, each with its own discriminator. Use the archetype hypotheses above as priors; let the data confirm or kill them.
-3. **Per-archetype scoring rubric.** Each archetype gets its own SQL function. An account can match more than one archetype; the highest match wins the routing decision.
-4. **Hold out 20%.** Train on 80%, score the held-out 20%. If lift on held-out wins isn't materially better than V0's filter, the model isn't real yet — keep V0 running. **No model ships without held-out lift.**
-5. **V0's tier weights get re-fit monthly** in the meantime (logistic regression in Supabase against the wins/losses cohort) — the function stays SQL, the weights become data-driven instead of vibes-driven, and the V0 score keeps reps moving until V1 earns the handoff.
+1. **Refresh the cohort.** Pull the latest closed deals. Snapshot what was *publicly true* 6–18 months before close. Distrust the CRM labels — Phase 0 of the win-audit is *data archaeology*, not model fitting. (CRM says "inbound demo request"; the lake often shows a CHRO hire 45 days prior. The CHRO hire is the actual signal.)
+2. **Re-cluster.** Confirm the existing archetypes still hold. If a new shape emerges from 6 of the last 10 wins, add a fourth archetype — propose it, gate it through the 20% holdout, ship only if it earns lift.
+3. **Re-fit weights.** Logistic regression in Supabase against the wins/losses cohort. Function stays SQL; weights move from vibes-driven to data-driven.
+4. **Holdout gate.** Train on 80%, score the held-out 20%. New weights ship only if they show measurable lift on held-out wins. **No weight change ships without held-out lift.**
 
-The mechanic that matters: **filter says "who's in the room," archetype says "who's in pain right now."** V0 is the filter. V1 is the archetype. Part 3's signal workflow is the *operational* version of those archetypes — funding + headcount + exec-hire correlation in 90d isn't a generic trigger, it's the new-CHRO-mandate archetype catching fire in real time.
+The mechanic that matters: **firmographics tell you who's in the room. Archetypes tell you who's in pain right now.** Part 3's signal workflow is the *operational* version of these archetypes — funding + headcount + exec-hire correlation in 90d isn't a generic trigger, it's the new-CHRO-mandate archetype catching fire in real time, with the score from Q3 ranking which one to work first.
 
 ---
 

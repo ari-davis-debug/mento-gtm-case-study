@@ -1,6 +1,6 @@
 # Walkthroughs — the 5-video adoption series
 
-> Cetner's adoption mechanic, applied to Mento. Recorded once. Lives in the repo. Onboards the next stakeholder (or new hire) in a morning.
+> The adoption mechanic, applied to Mento. Recorded once. Lives in the repo. Onboards the next stakeholder (or new hire) in a morning.
 
 ## Why this folder exists
 

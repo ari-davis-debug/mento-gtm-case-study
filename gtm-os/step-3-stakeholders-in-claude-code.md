@@ -8,7 +8,7 @@ Get Alex (and any other opted-in stakeholder) onboarded into Claude Code, pointe
 
 ## Why this step matters
 
-The lake and the playbooks (Steps 1–2) are dead weight if nobody opens them. Cetner's adoption mechanic is *"a few 1:1 sessions getting them, having >1 terminal open, using planning mode, talking to the data they have in a workflow they run."* This is the trust-build moment — when Alex sees the system surface accounts he'd already flag (plus one he wouldn't have), the OS earns its keep.
+The lake and the playbooks (Steps 1–2) are dead weight if nobody opens them. The adoption mechanic is *a few 1:1 sessions getting stakeholders set up, multiple terminals open, planning mode on, talking to their own data in a workflow they actually run.* This is the trust-build moment — when Alex sees the system surface accounts he'd already flag (plus one he wouldn't have), the OS earns its keep.
 
 ## What concrete work happens here
 

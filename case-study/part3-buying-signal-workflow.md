@@ -59,7 +59,7 @@ Each source is hit by a **Trigger.dev** task that validates the payload, runs th
 
 > **Plus 6 bespoke signals we'd add for alpha** — manager-density break, triple-event correlation in 90d, ex-customer alumni placement, Glassdoor career-growth drop, lookalike to named customers, exec post about manager development. Mostly computed via SQL on data we already have. Listed in the appendix; not load-bearing for this section.
 
-**Filter vs. segment — why the bespoke 6 are the spine.** The 4 brief signals are the *filter* — they tell us an account is in the room. The bespoke 6 are the **operational situation** — what was actually true 6–18 months before Brex / Vercel / SoFi bought. Triple-event correlation in 90d (funding + headcount + exec-hire) isn't a generic trigger; it's the **new-CHRO-mandate archetype** from Part 2 catching fire in real time. As V1 ICP comes online (Part 2 §Q3), these stop being "alpha bolt-ons" and become the spine of the scoring — each bespoke signal maps to one archetype's discriminator. The filter says *who's in the room*; the segment says *who's in pain right now*.
+**Filter vs. segment — why the bespoke 6 are the spine.** The 4 brief signals are the *filter* — they tell us an account is in the room. The bespoke 6 are the **operational situation** — what was actually true 6–18 months before Brex / Vercel / SoFi bought. Triple-event correlation in 90d (funding + headcount + exec-hire) isn't a generic trigger; it's the **new-CHRO-mandate archetype** from Part 2 catching fire in real time. Each bespoke signal maps to one archetype's discriminator — the filter says *who's in the room*; the segment says *who's in pain right now*.
 
 ---
 
@@ -84,6 +84,8 @@ Output: `account_context` JSON cached in Supabase, read by the scorer, the draft
 ## Q3: How would you score / prioritize the signal — not all triggers are equal?
 
 **A:** Three numbers: `icp_score` (0–110, from Part 2) + `trigger_score` (0–~200, computed here) → `priority_score = trigger_score + (icp_score × 0.5)`. The alpha is in **combinations** — a funding round on its own = warm; funding + headcount jump + new CHRO in same 90 days = +50 combinatorial bonus (the new-CHRO-mandate archetype catching fire). All SQL — same query a rep can read. Weights backtested against won/lost deals (AUC ≥ 0.75) before shipping; monthly logistic regression re-fits over time. Detail below.
+
+> **Reminder on the pattern:** scoring runs in the **lake (Supabase)**, not in HubSpot. The whole shape from Part 2 is a *duplicate of the CRM under the CRM* — Airbyte mirrors HubSpot, Avoma, Slack into Supabase daily; enrichment writes into the same lake; SQL functions do all the math against tables that already live there. Triggers are just one more thing layered into the lake. Every new signal we add over time = one more table + one more SQL function + one more weight in the rubric. HubSpot is the rep UI; the lake is the system of record for everything derived. That separation is what lets us keep adding triggers without breaking the rep workflow.
 
 ### Q: How should a rep think about scoring, before we get to the SQL?
 
@@ -144,7 +146,7 @@ Signal stacking — what each signal is worth and why combinations win
 |---|---|---|---|
 | **Part 2 §Q1 — dedupe detection** | `contacts` | Tiered match (email → LinkedIn → domain+name → phone), groups duplicates | `contacts_dedupe_groups` |
 | **Part 2 §Q1 — merge job** | `contacts_dedupe_groups` + `contacts` | Picks winning value per field using merge precedence | `contacts_merged` |
-| **Part 2 §Q3 — V0 ICP scoring** | `accounts` + `account_context` (enrichment fills these) | Weighted `CASE WHEN` math on firmographics + bespoke layer | `accounts.icp_score` |
+| **Part 2 §Q3 — archetype ICP scoring** | `accounts` + `account_context` (enrichment fills these) | Per-archetype weighted `CASE WHEN` math; `icp_score = MAX(archetype_scores)` | `accounts.icp_score` |
 | **Part 2 §Q3 — monthly weight re-fit** | `accounts` + `outcomes` (won/lost) | Logistic regression | New weight constants, proposed as PR |
 | **Part 2 §Q4 — lifecycle transitions** | `contacts` + activity events | State machine logic with no-downgrade guarantee | `contacts.lifecycle_stage` |
 | **Part 3 DAG #1 — lake-side signals** | `accounts` + `account_context` + activity history | Manager-density, lookalike, multi-signal correlation | `trigger_events` |
@@ -347,7 +349,7 @@ flowchart TD
 
 ## Q7: What happens on Approve — CRM sync, sequencing, and attribution?
 
-**A:** On approve: HubSpot upsert in one transaction (contact + company + activity note with the full trigger payload + email logged). **No deal record yet** — outbound send ≠ pipeline. SmartLead picks up the approved draft as step 1 of a pre-tuned `Signal-Triggered — <signal_type>` campaign and runs follow-ups at day 3 / 7 / 14 / 21. **A reply or booked meeting is what creates the HubSpot deal** (Discovery stage). All outcomes (sent / opened / replied / booked / opt-out) write to Supabase `outcomes` and feed the monthly weight re-fit. Detail below.
+**A:** On approve: HubSpot upsert in one transaction (contact + company + activity note with the full trigger payload + email logged). **No deal record yet** — outbound send ≠ pipeline. SmartLead picks up the approved draft as step 1 of a pre-tuned `Signal-Triggered — <signal_type>` **multi-channel** campaign and runs follow-ups at day 3 / 7 / 14 / 21 across the channels that fit the contact: cold email from the rep's connected mailbox, LinkedIn touches (connection + DM where SmartLead's LinkedIn integration is wired), and SMS where mobile is verified. One campaign per signal type, one orchestrator across channels — not three tools. **A reply or booked meeting on any channel is what creates the HubSpot deal** (Discovery stage). All outcomes (sent / opened / replied / booked / opt-out) write to Supabase `outcomes` and feed the monthly weight re-fit. Detail below.
 
 ### DAG #4 — the post-approval pipe
 
@@ -357,7 +359,7 @@ flowchart TD
 
     A --> B["<b>HubSpot sync on APPROVE</b> (one transaction — NO deal yet)<br/>• Contact upsert — Marisol Hwang, CHRO, verified email<br/>• Company upsert — Glimmer Health, post-enrichment<br/>• Activity note — full trigger payload + score breakdown<br/>• Email logged — drafted email body + recipient<br/><i>Deal is NOT created here — outbound send ≠ pipeline</i>"]
 
-    B --> C["<b>SmartLead handoff</b> — drop straight into a sequence<br/>• Contact added to <code>Signal-Triggered — &lt;signal_type&gt;</code> campaign<br/>  (one campaign per signal type, pre-tuned for buyer + signal context)<br/>• Step 1 = the approved draft, sent from rep's connected mailbox<br/>• Steps 2–5 = follow-ups (day 3, 7, 14, 21), pre-built per campaign<br/>• Reply / booked / opt-out → contact pulled OUT of sequence via webhook<br/>• Slack card <code>Sequence</code> link deep-links to the running campaign"]
+    B --> C["<b>SmartLead handoff</b> — drop straight into a multi-channel sequence<br/>• Contact added to <code>Signal-Triggered — &lt;signal_type&gt;</code> campaign<br/>  (one campaign per signal type, pre-tuned for buyer + signal context)<br/>• Step 1 = the approved email draft, sent from rep's connected mailbox<br/>• Steps 2–5 = follow-ups (day 3, 7, 14, 21) across email + LinkedIn + SMS<br/>  (channels gated by verified contact data — email always, LinkedIn if URL,<br/>  SMS if mobile verified)<br/>• Reply / booked / opt-out on ANY channel → contact pulled OUT of sequence via webhook<br/>• Slack card <code>Sequence</code> link deep-links to the running campaign"]
 
     C --> D["<b>Reply or booked-meeting → THEN deal gets created</b><br/>SmartLead webhook fires on reply / booked<br/>➜ HubSpot deal create: stage = <code>Discovery</code>, source = <code>&lt;signal_type&gt;</code><br/>associated to contact + company already upserted<br/><i>This is when the account earns a pipeline record</i>"]
 
@@ -400,9 +402,34 @@ flowchart TD
 
 ---
 
-## Q8: Which piece is hardest to get right — and what would you actually build?
+## Q8: What would you actually build, end-to-end — and which piece is hardest?
 
-**A: The draft generator with the eval gate.** Crunchbase webhooks, SQL scoring, routing rules, Slack Block Kit cards, HubSpot upserts, SmartLead handoff — all plumbing. Wire-able in a day each.
+**A:** The brief asks for one workflow with five pieces: **monitor → enrich → score → route → draft (without auto-send).** Here's what I'd actually ship, in order, and where the hardest part lives.
+
+### What gets built — the full workflow, named
+
+| Piece | What ships | Tool stack |
+|---|---|---|
+| **1. Monitor** | One Trigger.dev task per signal source (Crunchbase webhook, Sumble daily poll, The Org daily poll, Greenhouse/Lever, Firecrawl for LinkedIn/Glassdoor) + 6 lake-side SQL signals (manager-density, triple-event, alumni placement, lookalike, exec posts). Each writes to `trigger_events`. | Trigger.dev + Supabase |
+| **2. Enrich** | Trigger.dev follow-on job — BlitzAPI (firmographics + verified contacts CHRO→VP People→L&D→CFO + email/phone), Crunchbase (round details), The Org (org chart), Sumble (people changes). Caches `account_context` JSON so each external API gets called at most once per trigger. | Deepline orchestrator wrapping the APIs above |
+| **3. Score** | Two SQL functions in `mento-gtm/sql/` — `trigger_score` (signal weights + combinatorial bonuses + recency kicker) and `priority_score = trigger_score + (icp_score × 0.5)`. Materialized as the `v_priority_queue` view. | Postgres SQL (Supabase) |
+| **4. Route** | Four deterministic rules in priority order: prior touch → territory → round-robin between Mento's 2 reps → Alex-override at priority ≥ 95. | Postgres SQL + Trigger.dev assignment job |
+| **5. Draft (HITL)** | Claude reads trigger + account context + best Avoma quote from comparable won customer + buyer record + **rep voice samples scraped from their connected mailbox** (last 12 closed-won outbound emails per rep via Gmail API). Output passes LLM-as-judge eval gate ≥ 0.85 before pinging the rep. | Claude Opus + Gmail API + Slack Block Kit |
+| **(0. Substrate)** | The whole flow assumes the Part 2 substrate is live — Airbyte sync, lake tables, dedupe, ICP scoring, lifecycle state machine. If those aren't real, none of the above earns its keep. | Airbyte + Supabase + Trigger.dev |
+
+### Where the rep's email-writing context comes from
+
+The differentiator is not generating any email — it's generating one that sounds like *this rep* wrote it. Five inputs, all already in the lake or pullable on connect:
+
+- **Voice samples** — rep's last 12 **closed-won** outbound emails, scraped from their connected Gmail/Outlook mailbox. Closed-won only — losing emails aren't a voice template, they're a counter-example. Refreshed weekly.
+- **Avoma quotes from comparable wins** — when the trigger fires, lake SQL picks the most similar won customer (cohort match on signal type + archetype) and pulls the best discovery-call quote from that account's transcripts. That quote goes in the prompt as evidence the rep can point to.
+- **Trigger payload** — the actual fired signal with structured details (funding round size + date + lead investor, or CHRO name + start date + prior company).
+- **Buyer record** — verified contact (CHRO > VP People > L&D > CFO), tenure, last 30d of public LinkedIn activity.
+- **Account context** — firmographics, lookalike score, alumni link, prior touch history, lifecycle stage — everything the enrichment job cached as `account_context`.
+
+### Which piece is hardest — and why
+
+**The draft generator with the eval gate.** Crunchbase webhooks, SQL scoring, routing rules, Slack Block Kit cards, HubSpot upserts, SmartLead handoff — all plumbing. Wire-able in a day each.
 
 **Generating an email that sounds like Alex wrote it, references a real Avoma quote from a comparable Mento customer, ties to the specific signal that fired, reads the lifecycle correctly, and passes an automated voice-match check before the rep ever sees it — that's the work and the differentiation.**
 

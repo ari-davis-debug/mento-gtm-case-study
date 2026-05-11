@@ -19,7 +19,7 @@ Take the #1 bottleneck from video 3 — *no signal coverage on the 200-list* —
 
 > *"Top bottleneck from video 3: Mento's 200-account list hasn't been re-scored against signals in 8 months. The shape we want: every account checked daily for funding, exec hires, headcount jumps, and L&D postings — triggers ranked, top-N delivered to the right rep in Slack, with a personalized draft ready to approve."*
 
-> *"This is the build flow Cetner calls 'agentic dev to ship solutions' — Step 5 of the OS. Three things matter: a one-paragraph spec, an eval gate before anything ships, and HITL at the draft, not the trigger."*
+> *"This is the build flow — Step 5 of the OS, 'agentic dev to ship solutions.' Three things matter: a one-paragraph spec, an eval gate before anything ships, and HITL at the draft, not the trigger."*
 
 ### 0:45–2:00 — The spec: one paragraph, written into the repo
 
