@@ -1,6 +1,8 @@
 # Part 3 — Buying Signal Workflow
 
 > Mento GTM Engineer Take-Home — *direct answer to the question, with the automation DAGs you can read in 30 seconds*
+>
+> **↗ Live scaffold:** the workflow described here is spec'd in [`../example-mento-gtm/services/signal-workflow/`](../example-mento-gtm/services/signal-workflow/) (spec.md + triggers/prompts/eval/webhooks). The SQL the workflow reads from is in [`../example-mento-gtm/sql/v_priority_queue.sql`](../example-mento-gtm/sql/v_priority_queue.sql). [`../example-mento-gtm/bottlenecks/no-trigger-coverage-on-200-list.md`](../example-mento-gtm/bottlenecks/no-trigger-coverage-on-200-list.md) is the captured-bottleneck that motivates building it.
 
 ## What the brief asks
 
@@ -166,6 +168,8 @@ Signal stacking — what each signal is worth and why combinations win
 
 **A:**
 
+> **↗ See it in the scaffold:** [`example-mento-gtm/sql/v_priority_queue.sql`](../example-mento-gtm/sql/v_priority_queue.sql) is the canonical version of this view, including the recency-decay function and the `ready_for_ai_draft` gate that hands off to the AI lane.
+
 ```sql
 trigger_score =
     -- single-signal weights
@@ -245,6 +249,8 @@ Output schema:
 - Templates can't match a specific rep's voice (Alex writes differently than Rep #2)
 
 **Eval gate before any draft pings the rep:** LLM-as-judge against held-out won-deal emails from the lake's `email_threads` table, scored on: voice match, trigger specificity, lake-evidence grounded, length < 120 words, no AI tells. **Drafts scoring < 0.85 retry with feedback before being shown to the rep.**
+
+> **↗ See it in the scaffold:** [`example-mento-gtm/services/signal-workflow/eval/README.md`](../example-mento-gtm/services/signal-workflow/eval/README.md) describes the three-judge eval gate (voice, factual, trigger-grounded) and the drift-detection cron that catches silent eval degradation week-over-week.
 
 ---
 

@@ -1,6 +1,8 @@
 # Part 2 — Data Foundation Plan
 
 > Mento GTM Engineer Take-Home
+>
+> **↗ Live scaffold:** every SQL job described below is instantiated in [`../example-mento-gtm/sql/`](../example-mento-gtm/sql/) — dedupe, ICP v0 + v1 refit, lifecycle transitions, outcomes attribution, the `v_priority_queue` view. Click any file to see the shape that this prose describes.
 
 ## How the scenario maps to the macro vision
 
@@ -259,6 +261,8 @@ Once an archetype passes the held-out gate, it ships — and its weights get re-
 
 **A:** Per-archetype SQL functions in Supabase. Below is one — **New-CHRO-Mandate** — written as a plain-English `if true, +N points` rubric. Same shape for the other two archetypes; only the discriminators and weights differ.
 
+> **↗ See it in the scaffold:** [`example-mento-gtm/sql/icp_v0.sql`](../example-mento-gtm/sql/icp_v0.sql) is the hand-weighted V0 shape; [`example-mento-gtm/sql/icp_v1_refit.sql`](../example-mento-gtm/sql/icp_v1_refit.sql) is the monthly logistic-regression refit with the holdout-gate guard.
+
 > *Read the weights as starting priors from the win-audit, not as fixed numbers.* The monthly retrain re-fits them against actual closed deals.
 
 ```sql
@@ -380,6 +384,8 @@ For Mento, the entry conditions look like this:
 ### Q: What does the state machine look like?
 
 **A:**
+
+> **↗ See it in the scaffold:** [`example-mento-gtm/sql/lifecycle_transitions.sql`](../example-mento-gtm/sql/lifecycle_transitions.sql) instantiates this state machine — the `account_lifecycle_events` table + the `v_stuck_accounts` view that surfaces the no-downgrade rule in practice.
 
 ```
                            [auto / agent flag]
