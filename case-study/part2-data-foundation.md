@@ -84,18 +84,18 @@ The shape is always: **reads from `[table]` → does `[the math / organization]`
 
 **Plain English:** "Deduping" means collapsing duplicate contacts into one record. Same person ends up in HubSpot 5 times — once from an event, once from a website form, once because a rep added them manually, once from a Clay import, once with a typoed email. That's 5 rows, 1 person. Dedupe = merge them into 1 row that keeps the best data from each.
 
-### Detection (deterministic, runs as SQL in Supabase)
+### Q: How would you detect duplicates?
 
-Tiered match — first hit wins. Plain English:
+**A:** Tiered match in Supabase, runs as deterministic SQL — first hit wins. Plain English:
 
 1. **Same email after normalizing** — case-insensitive, plus-strip (`ari+test@gmail.com` and `ari@gmail.com` are the same person)
 2. **Same LinkedIn URL after stripping tracking params** — most reliable identity match we have
 3. **Same email domain + similar-enough name** — `Ari Davis @ acme.com` and `A. Davis @ acme.com` count as the same person if their names are ≥ 85% character-similar (Levenshtein distance — "how many edits to turn one into the other")
 4. **Same phone number in standard international format** (E.164) — last-resort match
 
-### Merge — field precedence (the part most teams skip)
+### Q: What's the merge logic — which field from which record wins?
 
-When two records merge, *which field from which record wins?* Without this rule the merged record is garbage:
+**A:** Explicit field precedence per column — the part most teams skip. Without this rule the merged record is garbage:
 
 | Field | Wins | Loses |
 |---|---|---|
@@ -106,9 +106,9 @@ When two records merge, *which field from which record wins?* Without this rule 
 | Activity history | Union (keep all rows, dedupe by timestamp) |
 | Notes | Concatenate with attribution |
 
-### How dedupe actually runs (concretely)
+### Q: How does dedupe actually run end-to-end (concretely)?
 
-**Reps don't see this.** Dedupe is infrastructure plumbing — it runs in the lake (Supabase), agent-gated. The rep's HubSpot UI only changes when verified clean records get pushed back. The only time a human gets pinged is when a proposed merge touches a Customer or Opportunity — and even then it's Alex / RevOps, not a quota-carrying rep.
+**A: Reps don't see this.** Dedupe is infrastructure plumbing — it runs in the lake (Supabase), agent-gated. The rep's HubSpot UI only changes when verified clean records get pushed back. The only time a human gets pinged is when a proposed merge touches a Customer or Opportunity — and even then it's Alex / RevOps, not a quota-carrying rep.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -161,7 +161,9 @@ When two records merge, *which field from which record wins?* Without this rule 
 
 **A:** Airbyte mirrors HubSpot + Avoma + Slack into Supabase (the lake). Deepline orchestrates an enrichment waterfall across BlitzAPI (contacts + firmographics + email/phone), Crunchbase (funding), The Org (org chart), Sumble (headcount + L&D). Trigger.dev runs the schedule; n8n is the alternative for visual editing. Verified fields push back to HubSpot through the same sanity-check agent. Detail below.
 
-### The lake pattern — non-negotiable
+### Q: Where should the data live?
+
+**A: The lake pattern — non-negotiable.**
 
 ```
 HubSpot ────────────┐
@@ -177,7 +179,9 @@ Crunchbase ─────────┘                       │
 
 HubSpot is the rep UI. Supabase is the system of record for derived data. **Math doesn't happen in the CRM** — it happens in Supabase, then verified outputs push back to HubSpot. That separation is what keeps the cleanup clean.
 
-### Tools, named with reasoning for Mento's stage
+### Q: Which tools — named, with reasoning for Mento's stage?
+
+**A:**
 
 | Tool | Layer | Why for Mento |
 |---|---|---|
@@ -188,16 +192,18 @@ HubSpot is the rep UI. Supabase is the system of record for derived data. **Math
 | ~~ZoomInfo~~ | — | Skip at this scale. Cost-to-marginal-value is wrong below 50 reps. |
 | ~~Apollo~~ | — | Replaced by BlitzAPI's contact-finding waterfall. One tool, predictable pricing, better fit for the segment. |
 
-### What actually runs the enrichment jobs
+### Q: What actually runs the enrichment jobs on a schedule?
 
-"Orchestration" just means *the thing that wakes up the enrichment scripts on a schedule, retries them if they fail, and tells us when something breaks.* Two options, pick by audience:
+**A:** "Orchestration" just means *the thing that wakes up the enrichment scripts on a schedule, retries them if they fail, and tells us when something breaks.* Two options, pick by audience:
 
 | Option | When to use | Why |
 |---|---|---|
 | **Trigger.dev** (default) | Anything code-first that lives in the repo | TypeScript jobs deployed from `mento-gtm/`. Version-controlled, code review applies, retries + observability built-in. The right home for production jobs that shouldn't change weekly. |
 | **n8n** (alternative) | Anything Alex needs to edit visually without code | Self-hosted on a small VPS (~$12/mo). Drag-and-drop "if-this-then-that" workflows. Use for ops logic that changes weekly and shouldn't require a deploy. |
 
-### How it runs over time
+### Q: What does the cadence look like over time?
+
+**A:**
 
 - **Nightly Trigger.dev job:** re-enrich any record where `last_enriched_at > 30d` OR null
 - **Real-time Crunchbase webhook:** funding events trigger immediate re-enrichment + ICP-score recompute
@@ -209,7 +215,9 @@ HubSpot is the rep UI. Supabase is the system of record for derived data. **Math
 
 **A:** Outcome-backward, in two phases. **V0 (day one)** = one SQL formula with two tiers — firmographic filter + bespoke Mento boost (lookalike, Glassdoor, exec posts), threshold ≥ 70 routes to a rep. **V1 (month 6)** = per-archetype scoring (Hypergrowth-Promotion-Lag, New-CHRO-Mandate, Manager-Density-Break), each archetype gets its own SQL function, highest match wins. V1 only ships if it beats V0 on a held-out 20% of won deals. Detail below.
 
-### What "outcome-backward" actually means, in plain English
+### Q: What does "outcome-backward" actually mean?
+
+**A:** In plain English —
 
 Most ICPs work *forward*: pick traits (headcount 500–5K, software, recent funding), filter for them, call it your ICP. That's an Apollo search, not an ICP. It tells a rep *who's in the room* — not *who's about to buy*.
 
@@ -225,7 +233,9 @@ Cluster those *prior states* into 2–3 patterns. **Those patterns are the real 
 
 The Avoma calls feed this too: what reps heard on winning discovery calls (*"our directors are drowning,"* *"the new CHRO wants something running by Q3"*) becomes the qualitative validation for the quantitative signals we reconstruct from public data.
 
-### Two versions of the ICP, sequenced — ship V0 today, replace it with V1 after the win-audit
+### Q: Why two versions of the ICP (V0 and V1), sequenced?
+
+**A: Ship V0 today, replace it with V1 after the win-audit.**
 
 (V0 / V1 = *version 0 / version 1*. Same scoring function, same SQL, just upgraded once we have real won-deal data to learn from. We ship in two phases because Mento doesn't yet have the volume to do the better thing on day one.)
 
@@ -238,7 +248,9 @@ The Avoma calls feed this too: what reps heard on winning discovery calls (*"our
 
 **The short version:** V0 = one rough formula we ship Monday. V1 = three sharper formulas we ship after we've seen enough closed deals to know what actually correlates with winning. Same plumbing, smarter rules.
 
-### V0 scoring as a deterministic SQL function — two tiers, one number
+### Q: What does the V0 scoring SQL actually look like?
+
+**A:** Two tiers, one number, deterministic.
 
 V0 has two parts that both run as SQL in Supabase. Tier 1 = standard firmographic signals from the brief. Tier 2 = bespoke Mento signals (lookalikes, Glassdoor, exec posts) — these *contribute points*, they don't just live as agent flags. Total `icp_score = tier_1 + tier_2`. Threshold ≥ 70 routes to a rep.
 
@@ -273,9 +285,9 @@ icp_score = icp_score_firmographic + icp_score_boost;
 -- threshold: >= 70 = ICP, route to rep; 40-69 = nurture; <40 = drop
 ```
 
-### What the SQL actually says, in plain English
+### Q: What does that SQL actually say, in plain English?
 
-Read it as a list of *"if this is true, add N points"* checks:
+**A:** Read it as a list of *"if this is true, add N points"* checks.
 
 | Check | Points | Why this weight |
 |---|---|---|
@@ -294,7 +306,9 @@ Total can go from 0 to ~200. **≥ 70 = route to a rep**, 40–69 = nurture, < 4
 
 **Why deterministic, not agentic:** the rep *must* be able to ask "why did this account score 85?" and see the contributing fields. Black-box LLM scoring destroys trust the moment a rep disagrees with a result they can't audit. Same logic as why we don't auto-send: transparency is a feature.
 
-### Where the bespoke signals come from
+### Q: Where do the bespoke Mento signals come from?
+
+**A:**
 
 | Signal | Source | Field name in Supabase |
 |---|---|---|
@@ -305,14 +319,16 @@ Total can go from 0 to ~200. **≥ 70 = route to a rep**, 40–69 = nurture, < 4
 | YC / a16z / Tiger portfolio company with recent funding | Crunchbase Pro filters | `portfolio_in`, `last_funding_date` |
 | Conference attendee (HR Tech, ATD, LearningSpark) | Public attendee lists, last 12 months | `conference_attendee_last_12mo` |
 
-### Where the agent layer sits — explanation, not point-adding
+### Q: Where does the agent layer sit — does it add points to the score?
 
-The agent doesn't add points. The math is SQL. The agent does two things SQL can't:
+**A: No — explanation only, not point-adding.** The math is SQL. The agent does two things SQL can't:
 
 1. **Plain-English score explanation** — when a rep opens an account, an agent reads the contributing fields and writes a 1-paragraph explainer: *"Scored 78. Driving factors: Series B 6 weeks ago (+30), L&D role open (+20), CHRO hired in March (+40 *not* triggered — hire was 110 days ago), Vercel-shaped fintech (+10 lookalike), Glassdoor 2.8 + 30% headcount growth (+8). One miss: no exec posts about manager dev in last 30d."*
 2. **Edge-case escalation** — surfaces accounts scoring 45–69 with strong qualitative signals — *"this account scores 52 but their VP of Eng just posted about manager-development on LinkedIn this week"* — into a separate rep queue. Pattern recognition is what agents are good at; scoring math isn't.
 
-### How V0 turns into V1 — outcome-backward, with a holdout
+### Q: How does V0 turn into V1 over time?
+
+**A:** Outcome-backward, with a 20% holdout.
 
 Every time a deal closes-won or closes-lost, the row goes into a `deal_outcomes` table with the full lake snapshot at *T-180d, T-90d, T-30d, T=close*. Once we have ~30 wins + ~60 losses (realistic by month 6 given Mento's deal velocity):
 
@@ -353,7 +369,9 @@ The standard fix is borrowed from the **SiriusDecisions Demand Waterfall** (the 
 
 For Mento, the entry conditions look like this:
 
-### State machine + transitions
+### Q: What does the state machine look like?
+
+**A:**
 
 ```
                            [auto / agent flag]
@@ -378,7 +396,9 @@ For Mento, the entry conditions look like this:
   └────────────────┘   (reason feeds back into scoring weights)
 ```
 
-### Rules
+### Q: What are the explicit transition rules — who or what triggers each stage change?
+
+**A:**
 
 | Transition | Trigger | Owner |
 |---|---|---|
@@ -389,17 +409,17 @@ For Mento, the entry conditions look like this:
 | Any → Disqualified | Rep marks with `disqualification_reason` | Rep |
 | Customer → at-risk flag | Score drops below 70 → **doesn't downgrade lifecycle**, flags for CS | Auto (signal, not state change) |
 
-### No-downgrade rule
+### Q: What's the no-downgrade rule, and why does it matter?
 
-Lifecycle doesn't ricochet. A Customer whose score drops doesn't go back to MQL — they get a churn-risk *signal*. A merge between a Lead and a Customer keeps the Customer state. **Lifecycle is forward-only; exits go through Disqualified.** This is what "no clear rules" actually breaks; the fix is "the state only goes forward."
+**A:** Lifecycle doesn't ricochet. A Customer whose score drops doesn't go back to MQL — they get a churn-risk *signal*. A merge between a Lead and a Customer keeps the Customer state. **Lifecycle is forward-only; exits go through Disqualified.** This is what "no clear rules" actually breaks; the fix is "the state only goes forward."
 
-### Closed-loop learning
+### Q: How does the lifecycle feed closed-loop learning back into scoring?
 
-`disqualification_reason` is structured (dropdown: *not-ICP-fit*, *not-now*, *competitor*, *no-budget*, *bad-data*). Monthly Trigger.dev job correlates dq reasons with `icp_score` components — finds where the scoring is over- or under-weighting. Feeds back into Q3.
+**A:** `disqualification_reason` is structured (dropdown: *not-ICP-fit*, *not-now*, *competitor*, *no-budget*, *bad-data*). Monthly Trigger.dev job correlates dq reasons with `icp_score` components — finds where the scoring is over- or under-weighting. Feeds back into Q3.
 
-### Where the AI-native layer sits — agents on top of the state machine
+### Q: Where does the AI-native layer sit on top of the state machine?
 
-The state machine itself is deterministic (a Customer can't accidentally become an MQL). The agents sit on top of it, doing the things SQL is bad at — reading context, summarizing reasons, surfacing patterns. None of them *move* a contact across stages without a human approving; they make the human's decision a 30-second click instead of a 10-minute investigation.
+**A:** The state machine itself is deterministic (a Customer can't accidentally become an MQL). The agents sit on top of it, doing the things SQL is bad at — reading context, summarizing reasons, surfacing patterns. None of them *move* a contact across stages without a human approving; they make the human's decision a 30-second click instead of a 10-minute investigation.
 
 | Agent job | What it does | Where it sits in the lifecycle |
 |---|---|---|

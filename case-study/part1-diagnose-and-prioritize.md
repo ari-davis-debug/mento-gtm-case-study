@@ -25,9 +25,9 @@ So my job in week one isn't to clean HubSpot or ship an automation. **It's to st
 
 Detail on each below.
 
-### 1. Stand up the GTM OS — repo + full daily ingestion (Day 1–4) → Steps 1 + 2
+### Q: First — what does "stand up the GTM OS" actually mean? (Day 1–4 → Steps 1 + 2)
 
-Spin up `mento-gtm/` as the source-of-truth repo. **Airbyte → Supabase pulls everything Mento has, daily** — not just 12 won-deal transcripts, *everything*. Snapshots of accounts, contacts, deals, activities; full Avoma transcript library; Slack threads on deal channels; board decks; the 200-account list with attribution; Apollo/Crunchbase enrichment; L&D job-board feeds. Airbyte's OAuth-based connectors mean we don't need API keys floating around — Alex authorizes HubSpot/Avoma/Slack once via the standard OAuth dance, and the daily sync is live. A small ingest worker auto-front-matters each file (source, date, type, account, deal_id) and routes it into the repo tree:
+**A:** Spin up `mento-gtm/` as the source-of-truth repo. **Airbyte → Supabase pulls everything Mento has, daily** — not just 12 won-deal transcripts, *everything*. Snapshots of accounts, contacts, deals, activities; full Avoma transcript library; Slack threads on deal channels; board decks; the 200-account list with attribution; Apollo/Crunchbase enrichment; L&D job-board feeds. Airbyte's OAuth-based connectors mean we don't need API keys floating around — Alex authorizes HubSpot/Avoma/Slack once via the standard OAuth dance, and the daily sync is live. A small ingest worker auto-front-matters each file (source, date, type, account, deal_id) and routes it into the repo tree:
 
 ```
 mento-gtm/
@@ -54,9 +54,9 @@ mento-gtm/
 
 Output: `mento-gtm/` repo live, Airbyte daily sync running, every artifact above flowing in with front-matter.
 
-### 2. Get stakeholders into Claude Code, pointed at the repo (Day 4–7) → Step 3
+### Q: Second — how do you get stakeholders into Claude Code and pointed at the repo? (Day 4–7 → Step 3)
 
-**Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, recorded as a reusable walkthrough video so the next stakeholder (or new hire) onboards themselves:
+**A: Alex first, then anyone else who wants in as a stakeholder.** 1:1 onboarding session, ~45 min each, recorded as a reusable walkthrough video so the next stakeholder (or new hire) onboards themselves:
 
 - Install Claude Code, install GitHub Desktop, clone `mento-gtm/`
 - Open 2+ terminals — one for chat, one for repo work
@@ -72,9 +72,9 @@ Keep it simple at this stage — **no custom commands or skills yet**, just raw 
 
 Output: Alex (and any other opted-in stakeholder) running prompts independently. Signal-trust list captured live in those sessions. Onboarding video shipped for repeatability. The first ~3 starter prompts that get reused enough get promoted into custom skills.
 
-### 3. Capture + prioritize bottlenecks (Day 7–10) → Step 4
+### Q: Third — how do you capture and prioritize bottlenecks? (Day 7–10 → Step 4)
 
-Bottlenecks get captured **by looking at the data inside the repo** — not by running another round of stakeholder interviews. The work in Steps 1 and 2 already surfaced most of what we need; Step 3 is reading the lake and writing it down. `bottlenecks/` is a directory, not a single file — each bottleneck a node, schema'd the same way: *systems touched, problem, how measured, root cause hypothesis, desired outcome, priority score (impact × buildability × stakeholder-trust)*.
+**A:** Bottlenecks get captured **by looking at the data inside the repo** — not by running another round of stakeholder interviews. The work in Steps 1 and 2 already surfaced most of what we need; Step 3 is reading the lake and writing it down. `bottlenecks/` is a directory, not a single file — each bottleneck a node, schema'd the same way: *systems touched, problem, how measured, root cause hypothesis, desired outcome, priority score (impact × buildability × stakeholder-trust)*.
 
 **Phase 0 — data archaeology, before anything else.** *Distrust the CRM labels first.* HubSpot will say a deal was "inbound demo request"; the lake will often show the CHRO was hired 45 days prior. The CHRO hire is the actual signal. Before ranking bottlenecks, cross-reference 8–10 won deals against what was *publicly true* about those accounts 6–18 months before close — funding state, headcount delta, exec turnover, careers-page churn. This is the input that makes the "outcome-backward ICP" in Part 2 honest, and it's the difference between *who is in the room* (filter) and *who is in pain right now* (segment).
 
