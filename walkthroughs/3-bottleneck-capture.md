@@ -1,10 +1,10 @@
 # 3 — Let the Data Tell You What's Broken
 
-> Audience: Alex · Outcome: a ranked shortlist of bottlenecks pulled *from your own data*, not from a whiteboard session
+> Walks **OS Step 4** — capture + prioritize bottlenecks · Audience: Alex · Outcome: a ranked shortlist of bottlenecks pulled *from your own data*, not from a whiteboard session
 
 ## What this walkthrough covers
 
-You've played with the lake (walkthrough 2). Now you look at it with one question: **where are we leaking?** The point isn't to build anything yet — it's to let the data nominate the problems so you don't waste cycles building the wrong thing first.
+You've played with the lake (walkthrough 2 = OS step 3). Now you look at it with one question: **where are we leaking?** The point isn't to build anything yet — it's to let the data nominate the problems so steps 5–7 of the OS (the build, the rollout, the measurement — execution work, post-hire) get pointed at the *right* thing first.
 
 Most GTM hires get pulled to "build the signal workflow" in week one. If the signal workflow isn't the actual #1 bottleneck, reps reject it in week three. This walkthrough is how you avoid that mistake — by reading what's already in your HubSpot, Avoma, and Slack instead of guessing.
 
@@ -103,7 +103,7 @@ But — and this matters — once the lake names a top problem, you take it to t
 - **Impact × buildability × trust** as the ranking math — and an answer to "what should we build first?"
 - **A list of accounts the lake flagged that you wouldn't have** (from walkthrough 2 prompt 3) — usually one of these is the seed for the top bottleneck.
 
-Walkthrough 4 picks up here — *if you wanted to operationalize the top bottleneck, here's what the workflow shape would look like.*
+**You've now walked OS steps 1–4 live on Mento's own data.** Steps 5–7 — agentic dev to ship, rollout to reps, closed-loop measurement — are sketched in `gtm-os/` and Parts 2 + 3 of the case study, but they're execution work, not foundation. That's what I'd run once embedded, against the bottleneck this walkthrough surfaces as #1.
 
 ## Common questions
 

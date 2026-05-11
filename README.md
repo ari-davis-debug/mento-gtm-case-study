@@ -109,7 +109,7 @@ Three things make Mento a fit for this shape, not just any GTM-engineer playbook
 | **Ship a new workflow** (e.g. churn-risk monitor, expansion-signal alerts) | [`gtm-os/step-5`](./gtm-os/step-5-agentic-dev-ship-solutions.md) — spec → research → test → ship | New Trigger.dev jobs, eval-gated, deployed |
 | **Re-tune ICP weights** (the lake disagrees with your math) | [Part 2 §Q3](./case-study/part2-data-foundation.md) → monthly logistic regression on `outcomes` table | New `archetype_score_*` weights, PR for human review |
 | **Add a new archetype** (a new win pattern emerges) | [Part 2 §Q3](./case-study/part2-data-foundation.md) → new SQL CASE-statement column on `accounts` | New archetype score column, MAX() routing automatically picks it up |
-| **Onboard a new stakeholder** (RevOps hire, new founder advisor) | [`walkthroughs/`](./walkthroughs/) — 5 written guides | Stakeholder running their own prompts in ~1 hour |
+| **Onboard a new stakeholder** (RevOps hire, new founder advisor) | [`walkthroughs/`](./walkthroughs/) — 3 written guides | Stakeholder running their own prompts in ~1 hour |
 | **Re-rank what to build next** (quarterly, or when lake surfaces a new top problem) | [`gtm-os/step-4`](./gtm-os/step-4-capture-prioritize-bottlenecks.md) — re-run the ranking against current `bottlenecks/` | Updated `bottlenecks/_synthesis.md` |
 | **Audit a number you don't trust** (priority score, draft quality, lifecycle stage) | Click "Trigger detail" in the Slack card → SQL breakdown of every weight | Every claim is one click from source — no black boxes |
 
@@ -117,15 +117,15 @@ Three things make Mento a fit for this shape, not just any GTM-engineer playbook
 
 ## On the walkthroughs folder
 
-[`walkthroughs/`](./walkthroughs/) contains five written guides — *"here's how you'd actually stand this up."* The stack used (Airbyte → Supabase → Trigger.dev → Claude Code → SmartLead) is illustrative; swap your equivalents where they fit.
+[`walkthroughs/`](./walkthroughs/) contains three written guides — **a live representation of the 7-step OS, walked one step at a time on real Mento data.** The foundation stack (Airbyte → Supabase → Claude Code) is illustrative; swap your equivalents where they fit.
 
-| # | Walkthrough | What it unlocks |
-|---|---|---|
-| 1 | [Installation and setup](./walkthroughs/1-installation-and-setup.md) | Lake alive, daily sync running, repo cloned |
-| 2 | [First prompts in Claude Code](./walkthroughs/2-first-prompts-in-claude-code.md) | Three starter prompts against real data |
-| 3 | [Bottleneck capture](./walkthroughs/3-bottleneck-capture.md) | Top 1–2 bottlenecks ranked from the lake |
-| 4 | [Shipping the signal workflow](./walkthroughs/4-shipping-the-signal-workflow.md) | A top-ranked bottleneck shipped, eval-gated |
-| 5 | [Rep experience in Slack](./walkthroughs/5-rep-experience-in-slack.md) | What a rep actually does with a card |
+| # | Walkthrough | OS step | What it unlocks |
+|---|---|---|---|
+| 1 | [Get your data queryable](./walkthroughs/1-installation-and-setup.md) | Steps 1 + 2 | Foundation stack live, daily sync running, repo cloned. *The lake is queryable.* |
+| 2 | [Play with your data](./walkthroughs/2-first-prompts-in-claude-code.md) | Step 3 | Three starter prompts across HubSpot + Avoma + Slack on real data. *Stakeholders inside the system.* |
+| 3 | [Let the data tell you what's broken](./walkthroughs/3-bottleneck-capture.md) | Step 4 | Bottlenecks ranked from the lake, not interviews. *You know what's worth building.* |
+
+**Steps 5–7 of the OS are execution work** — what I'd run once embedded (agentic dev, rollout to reps, closed-loop measurement). They're sketched in `gtm-os/step-5`, `step-6`, `step-7` and in Parts 2 + 3 of the case study, but not as walkthroughs you'd run yourself — the doing of them needs real reps, real deals, real revenue lift.
 
 ## What I'm not claiming
 

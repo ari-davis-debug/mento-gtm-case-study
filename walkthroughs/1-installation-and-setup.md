@@ -1,12 +1,14 @@
 # 1 — Get Your Data Queryable
 
-> Audience: Alex (+ RevOps if there is one) · Outcome: terminal ready, repo cloned, your existing data mirrored into a place where Claude Code can ask questions across it
+> Walks **OS Steps 1 + 2** — repo per client, then data ingested daily · Audience: Alex (+ RevOps if there is one) · Outcome: terminal ready, repo cloned, your existing data mirrored into a place where Claude Code can ask questions across it
 
 ## What this walkthrough covers
 
-The point isn't to install a production stack. The point is **to get the data Mento already has into one place where you can play with it.** Three things in order: terminal setup, clone the repo, set up Airbyte so HubSpot + Avoma + Slack mirror into Supabase. After that — walkthroughs 2 and 3 are about exploring what's there.
+The point isn't to install a production stack. The point is **to get the data Mento already has into one place where you can play with it.** Three things in order: terminal setup, clone the repo, set up Airbyte so HubSpot + Avoma + Slack mirror into Supabase via OAuth.
 
-The heavier production stack (Trigger.dev, SmartLead, enrichment APIs) is *not* needed for this. That's what walkthrough 4 sketches when you're ready to build workflows on top of what you find. **Don't install it yet.**
+**The unlock once this is done:** a stakeholder can ask *"why did we close [last big logo]?"* and Claude reads the Avoma quotes, the Slack thread where the intro happened, the funding event 60 days prior, and the CHRO hire 30 days before that — and tells you. Same query for losses. That's the OS earning its keep on day one — not by automating anything, by making everything *answerable*.
+
+Steps 5–7 of the OS — orchestration (Trigger.dev), outbound (SmartLead), enrichment APIs — are **not** part of this walkthrough. Those are execution work that comes after walkthroughs 2 and 3 surface a bottleneck worth operationalizing.
 
 ## Step 1 — Terminal setup
 
@@ -128,7 +130,7 @@ That's it for now. **Four tools, all OAuth or free-tier, all about reading what 
 - *Outbound execution* (SmartLead, Outreach, Apollo Sequences) — only when reps are approving drafts
 - *Enrichment APIs* (BlitzAPI, Crunchbase Pro, Sumble) — only when scoring needs signals from outside Mento's own data
 
-Walkthrough 4 sketches what that execution stack would look like *if* you decided to operationalize one of the bottlenecks you find in walkthrough 3. Until then, **don't pay for what you're not using yet.**
+If walkthrough 3 surfaces a bottleneck worth operationalizing, the execution stack is what gets added on top. Until then, **don't pay for what you're not using yet.** That's the doing of OS step 5 — the work I'd run once embedded.
 
 ## What you've unlocked
 

@@ -1,12 +1,12 @@
 # 2 — Play With Your Data
 
-> Audience: Alex (and any opted-in stakeholder) · Outcome: you ask three questions against your *own* HubSpot + Avoma + Slack and see what the data already knows
+> Walks **OS Step 3** — stakeholders into Claude Code on the repo · Audience: Alex (and any opted-in stakeholder) · Outcome: you ask three questions against your *own* HubSpot + Avoma + Slack and see what the data already knows
 
 ## What this walkthrough covers
 
-The lake is alive (walkthrough 1). Now you actually look at it. **The goal isn't to ship anything — it's to feel what it's like to ask questions across HubSpot, Avoma, and Slack at the same time and get one answer back.**
+The lake is alive (walkthrough 1, OS steps 1 + 2). Now you're inside it. **The goal isn't to ship anything — it's to feel what it's like to ask questions across HubSpot, Avoma, and Slack at the same time and get one answer back.**
 
-Three prompts. Plain English. No SQL required (Claude writes it for you and shows its work).
+Three prompts. Plain English. No SQL required (Claude writes it for you and shows its work). The unlock once you've done this once: you stop asking *"can the system answer X?"* and start asking *"what should I ask the system next?"* That's when stakeholders are inside the OS for real.
 
 ## Setup
 
